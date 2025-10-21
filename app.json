@@ -1,4 +1,33 @@
 {
-  "name": "AppVentasVerial",
-  "displayName": "AppVentasVerial"
+  "expo": {
+    "name": "AppVentasVerial",
+    "slug": "appventasverial",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#1F4788"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.appventasverial"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1F4788"
+      },
+      "package": "com.appventasverial"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  },
+  "name": "AppVentasVerial"
 }
