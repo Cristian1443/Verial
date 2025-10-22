@@ -1,6 +1,6 @@
 // src/screens/GastosScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
 
 const gastosEjemplo = [
@@ -13,11 +13,9 @@ const gastosEjemplo = [
 
 const GastosScreen = ({ navigation }: { navigation: any }) => {
   const [selectedTipo, setSelectedTipo] = useState('');
-  const [importe, setImporte] = useState('');
-  const [verEuros, setVerEuros] = useState(12.88);
+  const verEuros = 12.88;
 
   const tiposGasto = ['Todos', 'Notas de Venta', 'Cobros', 'Gastos', 'Incidencias', 'Impuestos Boxes'];
-  const total = gastosEjemplo.reduce((sum, g) => sum + g.importe, 0);
 
   return (
     <View style={styles.mainContainer}>

@@ -1,6 +1,6 @@
 // src/screens/SincronizacionScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
 
 const SincronizacionScreen = ({ navigation }: { navigation: any }) => {
@@ -12,7 +12,7 @@ const SincronizacionScreen = ({ navigation }: { navigation: any }) => {
     setExporting(true);
     setTimeout(() => {
       setExporting(false);
-      alert('Datos exportados correctamente');
+      Alert.alert('Éxito', 'Datos exportados correctamente');
     }, 2000);
   };
 
@@ -20,7 +20,7 @@ const SincronizacionScreen = ({ navigation }: { navigation: any }) => {
     setImporting(true);
     setTimeout(() => {
       setImporting(false);
-      alert('Datos importados correctamente');
+      Alert.alert('Éxito', 'Datos importados correctamente');
     }, 2000);
   };
 
@@ -28,7 +28,7 @@ const SincronizacionScreen = ({ navigation }: { navigation: any }) => {
     setSyncing(true);
     setTimeout(() => {
       setSyncing(false);
-      alert('Sincronización completada');
+      Alert.alert('Éxito', 'Sincronización completada');
     }, 3000);
   };
 

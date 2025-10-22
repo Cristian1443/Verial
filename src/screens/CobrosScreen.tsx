@@ -1,6 +1,6 @@
 // src/screens/CobrosScreen.tsx
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
 
 // Datos de ejemplo
@@ -12,7 +12,6 @@ const notasPendientes = [
 ];
 
 const CobrosScreen = ({ navigation }: { navigation: any }) => {
-  const [searchTerm, setSearchTerm] = useState('');
   
   const total = notasPendientes.reduce((sum, n) => sum + n.importe, 0);
 

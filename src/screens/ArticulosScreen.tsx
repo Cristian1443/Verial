@@ -108,13 +108,6 @@ const ArticulosScreen = ({ navigation }: { navigation: any }) => {
   );
 };
 
-const InfoItem = ({ label, value }: { label: string; value: string }) => (
-  <View style={styles.infoItem}>
-    <Text style={styles.infoLabel}>{label}:</Text>
-    <Text style={styles.infoValue}>{value || '-'}</Text>
-  </View>
-);
-
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,

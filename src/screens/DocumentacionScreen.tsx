@@ -190,4 +190,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SincronizacionScreen;
+export default DocumentacionScreen;
