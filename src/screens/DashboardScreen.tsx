@@ -15,7 +15,6 @@ const ventasRecientes = [
 const DashboardScreen = ({ navigation }: { navigation: any }) => {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
-  const isTablet = width >= 768 && width < 1024;
 
   return (
     <View style={styles.mainContainer}>
@@ -40,7 +39,10 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
               <Text style={styles.buttonWhiteText}>Nota de Venta</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.buttonOutline}>
+            <TouchableOpacity 
+              style={styles.buttonOutline}
+              onPress={() => navigation.navigate('ResumenDiaScreen')}
+            >
               <Text style={styles.buttonOutlineIcon}>📊</Text>
               <Text style={styles.buttonOutlineText}>Ver Informes</Text>
             </TouchableOpacity>
@@ -107,7 +109,10 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
               <Text style={styles.actionText}>Nueva{'\n'}Venta</Text>
             </TouchableOpacity>
             
-            <TouchableOpacity style={styles.actionCard}>
+            <TouchableOpacity 
+              style={styles.actionCard}
+              onPress={() => navigation.navigate('ResumenDiaScreen')}
+            >
               <View style={styles.actionIcon}>
                 <Text style={styles.actionIconText}>📈</Text>
               </View>
@@ -146,7 +151,10 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
             </View>
           ))}
 
-          <TouchableOpacity style={styles.verTodas}>
+          <TouchableOpacity 
+            style={styles.verTodas}
+            onPress={() => navigation.navigate('VentasScreen')}
+          >
             <Text style={styles.verTodasText}>👁️ Ver todas las ventas</Text>
           </TouchableOpacity>
         </View>

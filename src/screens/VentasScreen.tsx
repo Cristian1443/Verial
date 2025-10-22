@@ -144,6 +144,7 @@ const VentasScreen = ({ navigation }: { navigation: any }) => {
       <NewVentaModal
         visible={showNewVentaModal}
         onClose={() => setShowNewVentaModal(false)}
+        navigation={navigation}
       />
     </View>
   );

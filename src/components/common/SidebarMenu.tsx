@@ -9,6 +9,8 @@ const SidebarMenu = ({ navigation, currentScreen }: { navigation: any; currentSc
   const menuItems = [
     { id: 'Dashboard', icon: '🏠', label: 'Panel', screen: 'Dashboard' },
     { id: 'VentasScreen', icon: '📋', label: 'Ventas', screen: 'VentasScreen' },
+    { id: 'CobrosScreen', icon: '💰', label: 'Cobros', screen: 'CobrosScreen' },
+    { id: 'GastosScreen', icon: '📃', label: 'Gastos', screen: 'GastosScreen' },
     { id: 'AlmacenScreen', icon: '📦', label: 'Almacén', screen: 'AlmacenScreen' },
     { id: 'SincronizacionScreen', icon: '🌐', label: 'Comunica', screen: 'SincronizacionScreen' },
     { id: 'Dashboard', icon: '📅', label: 'Agenda', screen: 'Dashboard' },

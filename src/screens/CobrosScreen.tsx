@@ -133,7 +133,7 @@ const CobrosScreen = ({ navigation }: { navigation: any }) => {
 };
 
 // Modal Nueva Cobranza
-const NuevaCobranzaModal = ({ onClose, onContinuar }: any) => {
+const NuevaCobranzaModal = ({ onContinuar }: any) => {
   return (
     <Modal visible={true} animationType="fade" transparent={true}>
       <View style={modalStyles.overlay}>
@@ -167,7 +167,7 @@ const NuevaCobranzaModal = ({ onClose, onContinuar }: any) => {
 };
 
 // Modal Marcar Notas Pendientes
-const MarcarNotasModal = ({ cliente, onClose, onConfirmar }: any) => {
+const MarcarNotasModal = ({ onClose, onConfirmar }: any) => {
   const [notasSeleccionadas, setNotasSeleccionadas] = useState([true, false, false, false]);
   
   const toggleNota = (index: number) => {

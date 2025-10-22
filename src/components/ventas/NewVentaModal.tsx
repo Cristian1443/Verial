@@ -11,9 +11,16 @@ const articulosEjemplo = [
   { id: 6, nombre: 'Artículo', cantidad: 1, precio: 27.00, descuento: 16.00, descuentoPorcentaje: 12 },
 ];
 
-const NewVentaModal = ({ visible, onClose }: { visible: boolean; onClose: () => void }) => {
+const NewVentaModal = ({ visible, onClose, navigation }: { visible: boolean; onClose: () => void; navigation?: any }) => {
   const [aplicarDescuento, setAplicarDescuento] = useState(false);
   const [showHistorial, setShowHistorial] = useState(false);
+  
+  const handleResumenNota = () => {
+    if (navigation) {
+      onClose();
+      navigation.navigate('ResumenNotaScreen');
+    }
+  };
 
   const subtotal = articulosEjemplo.reduce((sum, art) => sum + (art.cantidad * art.precio), 0);
   const descuentosTotal = articulosEjemplo.reduce((sum, art) => sum + art.descuento, 0);
@@ -137,7 +144,7 @@ const NewVentaModal = ({ visible, onClose }: { visible: boolean; onClose: () => 
 
             {/* Botones inferiores */}
             <View style={styles.bottomButtons}>
-              <TouchableOpacity style={styles.resumeButton}>
+              <TouchableOpacity style={styles.resumeButton} onPress={handleResumenNota}>
                 <Text style={styles.resumeButtonIcon}>📋</Text>
                 <Text style={styles.resumeButtonText}>Resumen Nota</Text>
               </TouchableOpacity>
