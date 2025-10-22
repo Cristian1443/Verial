@@ -1,6 +1,6 @@
 // src/screens/VentasScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
 import NewVentaModal from '../components/ventas/NewVentaModal';
 
