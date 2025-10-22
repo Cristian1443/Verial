@@ -3,13 +3,22 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
 
+const ventasRecientes = [
+  { id: 1, cliente: 'Cliente Nuevo 01', fecha: '14-21', vendedor: 'Ver Detalles', estado: 'verde', monto: 450.00 },
+  { id: 2, cliente: 'Cliente Nuevo 01', fecha: '14-21', vendedor: 'Ver Detalles', estado: 'naranja', monto: 450.00 },
+  { id: 3, cliente: 'Cliente Nuevo 01', fecha: '14-21', vendedor: 'Ver Detalles', estado: 'verde', monto: 450.00 },
+  { id: 4, cliente: 'Cliente Nuevo 01', fecha: '14-21', vendedor: 'Ver Detalles', estado: 'naranja', monto: 450.00 },
+  { id: 5, cliente: 'Cliente Nuevo 01', fecha: '14-21', vendedor: 'Ver Detalles', estado: 'verde', monto: 450.00 },
+  { id: 6, cliente: 'Cliente Nuevo 01', fecha: '14-21', vendedor: 'Ver Detalles', estado: 'verde', monto: 450.00 },
+];
+
 const DashboardScreen = ({ navigation }: { navigation: any }) => {
   return (
     <View style={styles.mainContainer}>
       <SidebarMenu navigation={navigation} currentScreen="Dashboard" />
       
       <ScrollView style={styles.contentContainer}>
-        {/* Hero Section - Exacto al mockup */}
+        {/* Hero Section */}
         <View style={styles.heroSection}>
           <Text style={styles.heroTitle}>Gestión Inteligente{'\n'}de Ventas en Ruta</Text>
           <Text style={styles.heroSubtitle}>
@@ -34,9 +43,8 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </View>
 
-        {/* Métricas - 3 Cards exactas */}
+        {/* Métricas - 3 Cards */}
         <View style={styles.metricsRow}>
-          {/* Ventas Hoy */}
           <View style={styles.metricCard}>
             <View style={styles.metricBadge}>
               <Text style={styles.metricBadgeText}>Ventas Hoy</Text>
@@ -48,7 +56,6 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
             <Text style={styles.metricChangePositive}>+12% vs ayer</Text>
           </View>
 
-          {/* Gastos Hoy */}
           <View style={styles.metricCard}>
             <View style={styles.metricBadge}>
               <Text style={styles.metricBadgeText}>Gastos Hoy</Text>
@@ -60,7 +67,6 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
             <Text style={styles.metricChangeNegative}>-8% vs ayer</Text>
           </View>
 
-          {/* Nº de Ventas */}
           <View style={styles.metricCard}>
             <View style={styles.metricBadge}>
               <Text style={styles.metricBadgeText}>Nº de Ventas</Text>
@@ -73,9 +79,8 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
           </View>
         </View>
 
-        {/* Segunda fila - Clientes Visitados + 3 Botones */}
+        {/* Segunda fila */}
         <View style={styles.secondRow}>
-          {/* Clientes Visitados Card */}
           <View style={styles.clientesCard}>
             <View style={styles.clientesBadge}>
               <Text style={styles.clientesBadgeText}>Clientes Visitados</Text>
@@ -87,7 +92,6 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
             <Text style={styles.clientesText}>Objetivo: 15 clientes</Text>
           </View>
 
-          {/* Botones de Acción */}
           <View style={styles.actionButtonsContainer}>
             <TouchableOpacity 
               style={styles.actionCard}
@@ -117,6 +121,31 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Ventas Recientes - RESTAURADO */}
+        <View style={styles.ventasSection}>
+          <View style={styles.ventasHeader}>
+            <Text style={styles.ventasTitle}>🛒 Ventas Recientes</Text>
+          </View>
+
+          {ventasRecientes.map((venta) => (
+            <View key={venta.id} style={styles.ventaItem}>
+              <View style={[
+                styles.ventaIndicator,
+                { backgroundColor: venta.estado === 'verde' ? '#4CAF50' : '#FF9800' }
+              ]} />
+              <View style={styles.ventaInfo}>
+                <Text style={styles.ventaCliente}>{venta.cliente}</Text>
+                <Text style={styles.ventaDetalle}>{venta.fecha} | {venta.vendedor}</Text>
+              </View>
+              <Text style={styles.ventaMonto}>{venta.monto.toFixed(2)} €</Text>
+            </View>
+          ))}
+
+          <TouchableOpacity style={styles.verTodas}>
+            <Text style={styles.verTodasText}>👁️ Ver todas las ventas</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -131,7 +160,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
-  // Hero Section - Azul con patrón
   heroSection: {
     backgroundColor: '#1F4788',
     padding: 50,
@@ -191,7 +219,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-  // Métricas - 3 Cards
   metricsRow: {
     flexDirection: 'row',
     padding: 25,
@@ -250,7 +277,6 @@ const styles = StyleSheet.create({
     color: '#FF5722',
     fontWeight: '600',
   },
-  // Segunda fila
   secondRow: {
     flexDirection: 'row',
     paddingHorizontal: 25,
@@ -339,6 +365,68 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     lineHeight: 16,
+  },
+  // Ventas Recientes
+  ventasSection: {
+    backgroundColor: 'white',
+    margin: 25,
+    marginTop: 0,
+    padding: 25,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  ventasHeader: {
+    marginBottom: 20,
+  },
+  ventasTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  ventaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    gap: 12,
+  },
+  ventaIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  ventaInfo: {
+    flex: 1,
+  },
+  ventaCliente: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  ventaDetalle: {
+    fontSize: 13,
+    color: '#999',
+  },
+  ventaMonto: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1F4788',
+  },
+  verTodas: {
+    marginTop: 15,
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  verTodasText: {
+    fontSize: 15,
+    color: '#1F4788',
+    fontWeight: 'bold',
   },
 });
 
