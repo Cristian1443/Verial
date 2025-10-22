@@ -4,16 +4,15 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 
 import SidebarMenu from '../components/common/SidebarMenu';
 
 const gastosEjemplo = [
-  { id: 1, tipo: 'Gasto 01', importe: 28.90, fecha: '15/10/2025', imagen: '🍽️' },
-  { id: 2, tipo: 'Gasto 02', importe: 28.90, fecha: '14/10/2025', imagen: '⛽' },
-  { id: 3, tipo: 'Gasto 03', importe: 28.90, fecha: '13/10/2025', imagen: '🏨' },
-  { id: 4, tipo: 'Gasto 04', importe: 28.90, fecha: '12/10/2025', imagen: '🚗' },
-  { id: 5, tipo: 'Gasto 05', importe: 28.90, fecha: '11/10/2025', imagen: '📋' },
+  { id: 1, tipo: 'Gasto 01', importe: 28.90 },
+  { id: 2, tipo: 'Gasto 02', importe: 28.90 },
+  { id: 3, tipo: 'Gasto 03', importe: 28.90 },
+  { id: 4, tipo: 'Gasto 04', importe: 28.90 },
+  { id: 5, tipo: 'Gasto 05', importe: 28.90 },
 ];
 
 const GastosScreen = ({ navigation }: { navigation: any }) => {
   const [selectedTipo, setSelectedTipo] = useState('');
-  const verEuros = 12.88;
 
   const tiposGasto = ['Todos', 'Notas de Venta', 'Cobros', 'Gastos', 'Incidencias', 'Impuestos Boxes'];
 
@@ -24,21 +23,23 @@ const GastosScreen = ({ navigation }: { navigation: any }) => {
       <View style={styles.contentContainer}>
         <Text style={styles.headerTitle}>Gastos</Text>
 
-        {/* Resumen */}
-        <View style={styles.summaryCard}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Numero sin Datos</Text>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Tipo de Gasto</Text>
+        {/* Formulario superior */}
+        <View style={styles.formCard}>
+          <View style={styles.formRow}>
+            <View style={styles.formField}>
+              <Text style={styles.formLabel}>Numero sin Datos</Text>
+            </View>
+            <View style={styles.formField}>
+              <Text style={styles.formLabel}>Tipo de Gasto</Text>
               <TextInput
-                style={styles.summaryInput}
+                style={styles.formInput}
                 placeholder="-"
               />
             </View>
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Valer Ecu {verEuros.toFixed(2)} €</Text>
+            <View style={styles.formField}>
+              <Text style={styles.formLabel}>Valer Ecu 12,88 €</Text>
               <TextInput
-                style={styles.summaryInput}
+                style={styles.formInput}
                 placeholder="-"
               />
             </View>
@@ -68,14 +69,13 @@ const GastosScreen = ({ navigation }: { navigation: any }) => {
           ))}
         </View>
 
-        {/* Mensaje informativo */}
+        {/* Info */}
         <View style={styles.infoBox}>
-          <Text style={styles.infoText}>
-            💡 Haz clic en todos a votar una imagen
-          </Text>
+          <Text style={styles.infoIcon}>💡</Text>
+          <Text style={styles.infoText}>Haz clic en todos a votar una imagen</Text>
         </View>
 
-        {/* Botón Añadir Nuevo Gasto */}
+        {/* Botón Añadir */}
         <TouchableOpacity style={styles.addButton}>
           <Text style={styles.addButtonText}>➕ Añadir Nuevo Gasto</Text>
         </TouchableOpacity>
@@ -84,14 +84,18 @@ const GastosScreen = ({ navigation }: { navigation: any }) => {
         <ScrollView style={styles.gastosList}>
           {gastosEjemplo.map((gasto) => (
             <View key={gasto.id} style={styles.gastoCard}>
-              <View style={styles.gastoImageContainer}>
-                <Text style={styles.gastoImage}>{gasto.imagen}</Text>
+              {/* Imagen placeholder */}
+              <View style={styles.gastoImageBox}>
+                <Text style={styles.gastoImagePlaceholder}>📷</Text>
               </View>
+              
               <View style={styles.gastoInfo}>
                 <Text style={styles.gastoTipo}>{gasto.tipo}</Text>
-                <Text style={styles.gastoFecha}>Ver Detalles: {gasto.fecha}</Text>
+                <Text style={styles.gastoDetalle}>Ver Detalles 📋</Text>
               </View>
-              <Text style={styles.gastoAmount}>{gasto.importe.toFixed(2)} €</Text>
+              
+              <Text style={styles.gastoMonto}>{gasto.importe.toFixed(2)} €</Text>
+              
               <TouchableOpacity style={styles.gastoMenu}>
                 <Text>📋</Text>
               </TouchableOpacity>
@@ -117,56 +121,39 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 20,
+    marginBottom: 25,
   },
-  header: {
-    marginBottom: 20,
-  },
-  backButton: {
-    alignSelf: 'flex-start',
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#1F4788',
-    fontWeight: '600',
-  },
-  summaryCard: {
+  formCard: {
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 20,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  summaryRow: {
+  formRow: {
     flexDirection: 'row',
     gap: 20,
-    alignItems: 'flex-end',
   },
-  summaryLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+  formField: {
     flex: 1,
   },
-  inputContainer: {
-    flex: 1,
-  },
-  inputLabel: {
-    fontSize: 11,
+  formLabel: {
+    fontSize: 13,
     color: '#666',
-    marginBottom: 5,
+    marginBottom: 8,
+    fontWeight: '500',
   },
-  summaryInput: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 14,
+  formInput: {
+    backgroundColor: '#f9f9f9',
     borderWidth: 1,
     borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
   },
   filtersContainer: {
     flexDirection: 'row',
@@ -195,21 +182,28 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   infoBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#FFF9E6',
     padding: 12,
     borderRadius: 8,
     marginBottom: 20,
+    gap: 10,
     borderLeftWidth: 4,
     borderLeftColor: '#FFC107',
+  },
+  infoIcon: {
+    fontSize: 16,
   },
   infoText: {
     fontSize: 13,
     color: '#856404',
+    flex: 1,
   },
   addButton: {
     backgroundColor: '#1F4788',
     padding: 15,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: 'center',
     marginBottom: 20,
   },
@@ -226,61 +220,48 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     padding: 15,
     borderRadius: 12,
-    marginBottom: 10,
+    marginBottom: 12,
     alignItems: 'center',
     gap: 15,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  gastoImageContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
+  gastoImageBox: {
+    width: 70,
+    height: 70,
+    borderRadius: 10,
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  gastoImage: {
-    fontSize: 30,
+  gastoImagePlaceholder: {
+    fontSize: 32,
+    color: '#ccc',
   },
   gastoInfo: {
     flex: 1,
   },
   gastoTipo: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 4,
   },
-  gastoFecha: {
-    fontSize: 12,
+  gastoDetalle: {
+    fontSize: 13,
     color: '#1F4788',
+    fontWeight: '500',
   },
-  gastoAmount: {
+  gastoMonto: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
   gastoMenu: {
-    padding: 5,
-  },
-  actionButtons: {
-    marginTop: 20,
-  },
-  returnButton: {
-    borderWidth: 2,
-    borderColor: '#1F4788',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  returnButtonText: {
-    color: '#1F4788',
-    fontSize: 16,
-    fontWeight: 'bold',
+    padding: 8,
   },
 });
 

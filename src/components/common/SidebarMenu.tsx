@@ -4,26 +4,20 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 
 const SidebarMenu = ({ navigation, currentScreen }: { navigation: any; currentScreen: string }) => {
   const menuItems = [
-    { id: 'Dashboard', icon: '🏠', label: 'Inicio', screen: 'Dashboard' },
+    { id: 'Dashboard', icon: '🏠', label: 'Panel', screen: 'Dashboard' },
     { id: 'VentasScreen', icon: '📋', label: 'Ventas', screen: 'VentasScreen' },
-    { id: 'ClientesScreen', icon: '👥', label: 'Clientes', screen: 'ClientesScreen' },
-    { id: 'ArticulosScreen', icon: '📦', label: 'Artículos', screen: 'ArticulosScreen' },
-    { id: 'CobrosScreen', icon: '💰', label: 'Cobros', screen: 'CobrosScreen' },
-    { id: 'GastosScreen', icon: '📃', label: 'Gastos', screen: 'GastosScreen' },
-    { id: 'AlmacenScreen', icon: '🏪', label: 'Almacén', screen: 'AlmacenScreen' },
-    { id: 'SincronizacionScreen', icon: '🔄', label: 'Comunicación', screen: 'SincronizacionScreen' },
-    { id: 'DocumentacionScreen', icon: '📄', label: 'Documentos', screen: 'DocumentacionScreen' },
-    { id: 'ConfiguracionScreen', icon: '⚙️', label: 'Configuración', screen: 'ConfiguracionScreen' },
+    { id: 'AlmacenScreen', icon: '📦', label: 'Almacén', screen: 'AlmacenScreen' },
+    { id: 'SincronizacionScreen', icon: '🌐', label: 'Comunica', screen: 'SincronizacionScreen' },
+    { id: 'AgendaScreen', icon: '📅', label: 'Agenda', screen: 'Dashboard' },
   ];
 
   return (
     <View style={styles.sidebar}>
       {/* Logo */}
       <View style={styles.logoContainer}>
-        <View style={styles.logoCircle}>
+        <View style={styles.logoBox}>
           <Text style={styles.logoText}>V</Text>
         </View>
-        <Text style={styles.logoSubtext}>Verial</Text>
       </View>
 
       {/* Menu Items */}
@@ -37,21 +31,13 @@ const SidebarMenu = ({ navigation, currentScreen }: { navigation: any; currentSc
             ]}
             onPress={() => navigation.navigate(item.screen)}
           >
-            <View style={styles.menuItemContent}>
-              <Text style={[
-                styles.menuIcon,
-                currentScreen === item.id && styles.menuIconActive
-              ]}>
-                {item.icon}
-              </Text>
-              <Text style={[
-                styles.menuLabel,
-                currentScreen === item.id && styles.menuLabelActive
-              ]}>
-                {item.label}
-              </Text>
-            </View>
-            {currentScreen === item.id && <View style={styles.activeIndicator} />}
+            <Text style={styles.menuIcon}>{item.icon}</Text>
+            <Text style={[
+              styles.menuLabel,
+              currentScreen === item.id && styles.menuLabelActive
+            ]}>
+              {item.label}
+            </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -59,10 +45,7 @@ const SidebarMenu = ({ navigation, currentScreen }: { navigation: any; currentSc
       {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerButton}>
-          <Text style={styles.footerIcon}>❓</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerButton}>
-          <Text style={styles.footerIcon}>🚪</Text>
+          <Text style={styles.footerIcon}>⚙️</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -71,66 +54,50 @@ const SidebarMenu = ({ navigation, currentScreen }: { navigation: any; currentSc
 
 const styles = StyleSheet.create({
   sidebar: {
-    width: 80,
+    width: 100,
     backgroundColor: '#1F4788',
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
   },
   logoContainer: {
+    paddingVertical: 20,
     alignItems: 'center',
-    paddingVertical: 25,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255,255,255,0.1)',
   },
-  logoCircle: {
-    width: 45,
-    height: 45,
-    borderRadius: 23,
+  logoBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
   },
   logoText: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#1F4788',
   },
-  logoSubtext: {
-    fontSize: 10,
-    color: 'white',
-    fontWeight: '600',
-  },
   menuItems: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 20,
   },
   menuItem: {
-    position: 'relative',
-    paddingVertical: 15,
-    paddingHorizontal: 10,
+    paddingVertical: 20,
+    paddingHorizontal: 15,
     alignItems: 'center',
-    marginVertical: 2,
+    borderLeftWidth: 4,
+    borderLeftColor: 'transparent',
   },
   menuItemActive: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-  },
-  menuItemContent: {
-    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderLeftColor: 'white',
   },
   menuIcon: {
     fontSize: 24,
-    marginBottom: 4,
-  },
-  menuIconActive: {
-    transform: [{ scale: 1.1 }],
+    marginBottom: 8,
   },
   menuLabel: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.8)',
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.7)',
     textAlign: 'center',
     fontWeight: '500',
   },
@@ -138,28 +105,17 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  activeIndicator: {
-    position: 'absolute',
-    right: 0,
-    top: '25%',
-    bottom: '25%',
-    width: 4,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 4,
-    borderBottomLeftRadius: 4,
-  },
   footer: {
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.1)',
-    paddingVertical: 15,
+    paddingVertical: 20,
     alignItems: 'center',
-    gap: 10,
   },
   footerButton: {
-    padding: 5,
+    padding: 10,
   },
   footerIcon: {
-    fontSize: 22,
+    fontSize: 24,
   },
 });
 

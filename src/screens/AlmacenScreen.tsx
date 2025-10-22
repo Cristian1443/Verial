@@ -1,12 +1,12 @@
 // src/screens/AlmacenScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
 
 const AlmacenScreen = ({ navigation }: { navigation: any }) => {
   const [selectedOption, setSelectedOption] = useState('Resumen Stock');
 
-  const options = [
+  const opciones = [
     'Carga Camión',
     'Descarga Camión',
     'Inventario Camión',
@@ -22,24 +22,31 @@ const AlmacenScreen = ({ navigation }: { navigation: any }) => {
         <Text style={styles.headerTitle}>Notas Almacén</Text>
 
         {/* Lista de opciones */}
-        <ScrollView style={styles.optionsList}>
-          {options.map((option) => (
+        <View style={styles.optionsContainer}>
+          {opciones.map((opcion) => (
             <TouchableOpacity
-              key={option}
+              key={opcion}
               style={[
                 styles.optionItem,
-                selectedOption === option && styles.optionItemActive
+                selectedOption === opcion && styles.optionItemActive
               ]}
-              onPress={() => setSelectedOption(option)}
+              onPress={() => setSelectedOption(opcion)}
             >
-              <Text style={styles.optionText}>{option}</Text>
+              <Text style={[
+                styles.optionText,
+                selectedOption === opcion && styles.optionTextActive
+              ]}>
+                {opcion}
+              </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
+        </View>
 
-        {/* Panel vacío para detalles */}
-        <View style={styles.emptyPanel}>
-          <Text style={styles.emptyText}>Seleccione una opción para gestionar el stock</Text>
+        {/* Panel de contenido */}
+        <View style={styles.contentPanel}>
+          <Text style={styles.emptyMessage}>
+            Seleccione una opción para gestionar el stock del almacén
+          </Text>
         </View>
       </View>
     </View>
@@ -60,14 +67,18 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 30,
+    marginBottom: 25,
   },
-  optionsList: {
+  optionsContainer: {
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 10,
+    padding: 15,
     marginBottom: 20,
-    maxHeight: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   optionItem: {
     padding: 15,
@@ -82,15 +93,24 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: '500',
   },
-  emptyPanel: {
+  optionTextActive: {
+    color: '#1F4788',
+    fontWeight: 'bold',
+  },
+  contentPanel: {
     flex: 1,
     backgroundColor: 'white',
     borderRadius: 12,
+    padding: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  emptyText: {
+  emptyMessage: {
     fontSize: 16,
     color: '#999',
     textAlign: 'center',
