@@ -1,15 +1,21 @@
 // src/context/RealmProviderWrapper.tsx
-
 import React from 'react';
-import { RealmProvider, realmConfig } from '../models/Schemas';
-import { AppNavigator } from '../navigation/AppNavigator';
-import { ActivityIndicator, View, Text } from 'react-native';
+import { Platform, ActivityIndicator, View, Text } from 'react-native';
+import AppNavigator from '../navigation/AppNavigator';
 
 const RealmProviderWrapper = () => {
+  // Si estamos en web, solo mostrar el navegador sin Realm
+  if (Platform.OS === 'web') {
+    return <AppNavigator />;
+  }
+
+  // En móvil, cargar Realm dinámicamente
+  const { RealmProvider } = require('../models/Schemas');
+  const { realmConfig } = require('../models/Schemas');
+  
   return (
     <RealmProvider
       {...realmConfig}
-      // Muestra un indicador de carga mientras Realm inicializa la base de datos local
       fallback={() => ( 
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#0000ff" />

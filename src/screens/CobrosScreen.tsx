@@ -1,210 +1,212 @@
 // src/screens/CobrosScreen.tsx
-
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Modal, Button } from 'react-native';
-import { useRealm, useQuery } from '@realm/react';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
-import { NotaVenta, Cliente } from '../models/Schemas';
-import { postVerialData } from '../services/VerialAPI';
 
-// Definición de Tipo de Pago (Basado en GetMetodosPagoWS - Pág. 31)
-type MetodoPago = { Id: number; Nombre: string; };
+// Datos de ejemplo
+const notasPendientes = [
+  { id: 1, numero: '100', cliente: 'ÁLVAREZ CORDERO CONSUELO', fecha: '24-09-2025', importe: 289.90 },
+  { id: 2, numero: '100', cliente: 'ÁLVAREZ CORDERO CONSUELO', fecha: '19-08-2025', importe: 289.90 },
+  { id: 3, numero: '100', cliente: 'ÁLVAREZ CORDERO CONSUELO', fecha: '14-07-2025', importe: 289.90 },
+  { id: 4, numero: '100', cliente: 'ÁLVAREZ CORDERO CONSUELO', fecha: '12-06-2025', importe: 289.90 },
+];
 
 const CobrosScreen = ({ navigation }: { navigation: any }) => {
-    const realm = useRealm();
-    // Usar la vista de Notas de Venta SINCRONIZADAS para simular deudas, ya que los pagos
-    // se asocian a documentos ya creados en Verial.
-    // En una aplicación real, se cargaría un "listado de deudas" del ERP.
-    const syncedVentas = useQuery(NotaVenta).filtered('EstadoSincro == "SINCRONIZADO"');
-    const [selectedNota, setSelectedNota] = useState<NotaVenta | null>(null);
-    const [metodosPago, setMetodosPago] = useState<MetodoPago[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const total = notasPendientes.reduce((sum, n) => sum + n.importe, 0);
 
-    useEffect(() => {
-        // Cargar los métodos de pago de Verial una vez al entrar
-        const fetchMetodosPago = async () => {
-            try {
-                const result = await postVerialData<any>('GetMetodosPagoWS', {});
-                if (result.InfoError.Codigo === 0) {
-                    setMetodosPago(result.MetodosPago);
-                }
-            } catch (error) {
-                console.error("Error al cargar métodos de pago:", error);
-            }
-        };
-        fetchMetodosPago();
-    }, []);
+  return (
+    <View style={styles.mainContainer}>
+      <SidebarMenu navigation={navigation} currentScreen="CobrosScreen" />
 
-    const handleRegisterPayment = async (nota: NotaVenta) => {
-        // Asume que la nota tiene saldo pendiente (TotalImporte)
-        setSelectedNota(nota);
-    };
-
-    return (
-        <View style={styles.mainContainer}>
-            <SidebarMenu navigation={navigation} currentScreen="CobrosScreen" />
-
-            <View style={styles.contentContainer}>
-                <Text style={styles.headerTitle}>Cobros</Text>
-                <Text style={styles.subHeader}>Gestión de Cobros de Notas de Venta Sincronizadas (Deudas)</Text>
-                
-                <ScrollView style={styles.listContainer}>
-                    {syncedVentas.map(nota => (
-                        <CobroItem 
-                            key={nota.idLocal} 
-                            nota={nota} 
-                            realm={realm}
-                            onRegisterPayment={handleRegisterPayment}
-                        />
-                    ))}
-                    {syncedVentas.length === 0 && <Text style={styles.emptyText}>No hay pedidos sincronizados pendientes de cobro.</Text>}
-                </ScrollView>
-            </View>
-            
-            {/* Modal de Registro de Pago */}
-            {selectedNota && (
-                <PagoModal 
-                    nota={selectedNota} 
-                    metodosPago={metodosPago}
-                    onClose={() => setSelectedNota(null)}
-                />
-            )}
+      <View style={styles.contentContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton}>
+            <Text style={styles.backButtonText}>← Cobros</Text>
+          </TouchableOpacity>
         </View>
-    );
-};
 
-// Componente para una fila de cobro
-const CobroItem = ({ nota, realm, onRegisterPayment }: { nota: NotaVenta; realm: any; onRegisterPayment: (nota: NotaVenta) => void }) => {
-    const cliente = realm.objectForPrimaryKey('Cliente', nota.ID_Cliente) as Cliente | null;
-    // Calcular un "saldo pendiente" ficticio para el ejemplo
-    const saldoPendiente = nota.TotalImporte; 
+        {/* Panel de Notas Pendientes */}
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>📋 Notas Pendientes</Text>
+            <TouchableOpacity style={styles.confirmButton}>
+              <Text style={styles.confirmButtonText}>✓ Confirmar Cobro</Text>
+            </TouchableOpacity>
+          </View>
 
-    if (saldoPendiente <= 0) return null; // No mostrar si ya está pagado
-
-    return (
-        <View style={styles.cobroCard}>
-            <View>
-                <Text style={styles.cobroTitle}>{cliente?.Nombre || `Cliente ID: ${nota.ID_Cliente}`}</Text>
-                <Text style={styles.cobroInfo}>Pedido ID Verial: {nota.idVerial}</Text>
-                <Text style={styles.cobroInfo}>Fecha: {nota.Fecha.toISOString().substring(0, 10)}</Text>
-            </View>
-            <View style={styles.cobroActions}>
-                <Text style={styles.saldoAmount}>{saldoPendiente.toFixed(2)} €</Text>
-                <TouchableOpacity 
-                    style={styles.payButton}
-                    onPress={() => onRegisterPayment(nota)}
-                >
-                    <Text style={styles.payButtonText}>Registrar Cobro</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
-    );
-};
-
-// --- Componente Modal para el Pago ---
-const PagoModal = ({ nota, metodosPago, onClose }: { nota: NotaVenta; metodosPago: MetodoPago[]; onClose: () => void }) => {
-    const [importe, setImporte] = useState(nota.TotalImporte.toFixed(2));
-    const [metodoId, setMetodoId] = useState<number | null>(null);
-
-    const handleSavePago = async () => {
-        const importePago = parseFloat(importe);
-        if (importePago <= 0 || !metodoId) {
-            return Alert.alert("Error", "Debe especificar un importe válido y un método de pago.");
-        }
-
-        // 1. Estructura de NuevoPagoWS (Pág. 31)
-        const pagoBody = {
-            ID_DocCli: nota.idVerial, // ID del pedido en Verial
-            ID_MetodoPago: metodoId,
-            Fecha: new Date().toISOString().substring(0, 10),
-            Importe: importePago,
-        };
-
-        // 2. Llamada a la API de Verial
-        const result = await postVerialData<any>('NuevoPagoWS', pagoBody);
-
-        if (result.InfoError.Codigo === 0) {
-            Alert.alert("Éxito", `Pago de ${importePago}€ registrado en Verial.`);
-            // En una app real, aquí se actualizaría la deuda del pedido localmente.
-            onClose();
-        } else {
-            Alert.alert("Error de Pago", `Fallo al registrar el pago. Código: ${result.InfoError.Codigo}, Descripción: ${result.InfoError.Descripcion}`);
-        }
-    };
-
-    return (
-        <Modal animationType="slide" visible={true} onRequestClose={onClose}>
-            <View style={modalStyles.container}>
-                <Text style={modalStyles.headerTitle}>Registrar Pago para Pedido #{nota.idVerial}</Text>
-                
-                <Text style={modalStyles.label}>Importe a Pagar (€):</Text>
-                <TextInput
-                    style={modalStyles.input}
-                    keyboardType="numeric"
-                    value={importe}
-                    onChangeText={setImporte}
-                />
-                
-                <Text style={modalStyles.label}>Método de Pago:</Text>
-                {/* Selector simple para el método de pago */}
-                <ScrollView style={modalStyles.metodoSelector}>
-                    {metodosPago.map((metodo: MetodoPago) => (
-                        <TouchableOpacity
-                            key={metodo.Id}
-                            style={[modalStyles.metodoItem, metodoId === metodo.Id && modalStyles.metodoItemSelected]}
-                            onPress={() => setMetodoId(metodo.Id)}
-                        >
-                            <Text>{metodo.Nombre}</Text>
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-
-                <View style={modalStyles.footer}>
-                    <Button title="Cancelar" onPress={onClose} color="#ccc" />
-                    <Button title="Confirmar Pago" onPress={handleSavePago} disabled={!metodoId || parseFloat(importe) <= 0} />
+          {/* Lista de Notas */}
+          <ScrollView style={styles.notesList}>
+            {notasPendientes.map((nota) => (
+              <View key={nota.id} style={styles.noteItem}>
+                <View style={styles.noteIndicator} />
+                <View style={styles.noteInfo}>
+                  <Text style={styles.noteNumber}>{nota.numero} — {nota.cliente}</Text>
+                  <Text style={styles.noteDate}>Fecha: {nota.fecha}</Text>
                 </View>
-            </View>
-        </Modal>
-    );
+                <Text style={styles.noteAmount}>{nota.importe.toFixed(2)} €</Text>
+                <TouchableOpacity style={styles.noteCheckbox}>
+                  <View style={styles.checkbox} />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+
+          {/* Total */}
+          <View style={styles.totalSection}>
+            <Text style={styles.totalLabel}>Subtotal:</Text>
+            <Text style={styles.totalValue}>{total.toFixed(2)} €</Text>
+          </View>
+        </View>
+
+        {/* Botones de acción */}
+        <View style={styles.actionButtons}>
+          <TouchableOpacity style={styles.returnButton}>
+            <Text style={styles.returnButtonText}>← Volver a Cobros</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    mainContainer: { flex: 1, flexDirection: 'row' },
-    contentContainer: { flex: 1, padding: 20 },
-    headerTitle: { fontSize: 28, fontWeight: 'bold', marginBottom: 10 },
-    subHeader: { fontSize: 14, color: 'gray', marginBottom: 20 },
-    listContainer: { flex: 1 },
-    cobroCard: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 15,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-    },
-    cobroTitle: { fontWeight: 'bold', fontSize: 16 },
-    cobroInfo: { fontSize: 12, color: 'gray' },
-    cobroActions: { alignItems: 'flex-end' },
-    saldoAmount: { fontSize: 18, fontWeight: 'bold', color: 'red' },
-    payButton: {
-        backgroundColor: '#1F4788',
-        padding: 8,
-        borderRadius: 5,
-        marginTop: 5,
-    },
-    payButtonText: { color: 'white', fontWeight: 'bold', fontSize: 12 },
-    emptyText: { textAlign: 'center', marginTop: 50, color: 'gray' },
-});
-
-const modalStyles = StyleSheet.create({
-    container: { flex: 1, padding: 30, justifyContent: 'space-between' },
-    headerTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
-    label: { fontSize: 16, marginTop: 15, marginBottom: 5, fontWeight: '600' },
-    input: { height: 40, borderColor: '#ccc', borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, marginBottom: 15 },
-    metodoSelector: { maxHeight: 200, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 10 },
-    metodoItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
-    metodoItemSelected: { backgroundColor: '#E6EBF5', fontWeight: 'bold' },
-    footer: { flexDirection: 'row', justifyContent: 'space-around', paddingTop: 20, borderTopWidth: 1, borderTopColor: '#eee' },
+  mainContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#f5f5f5',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 30,
+  },
+  header: {
+    marginBottom: 20,
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#1F4788',
+    fontWeight: '600',
+  },
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 25,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  confirmButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  confirmButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  notesList: {
+    maxHeight: 400,
+  },
+  noteItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    marginBottom: 10,
+    gap: 12,
+  },
+  noteIndicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#4CAF50',
+  },
+  noteInfo: {
+    flex: 1,
+  },
+  noteNumber: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1F4788',
+    marginBottom: 4,
+  },
+  noteDate: {
+    fontSize: 12,
+    color: '#666',
+  },
+  noteAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginRight: 15,
+  },
+  noteCheckbox: {
+    padding: 5,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#1F4788',
+  },
+  totalSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 20,
+    marginTop: 10,
+    borderTopWidth: 2,
+    borderTopColor: '#1F4788',
+  },
+  totalLabel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  totalValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1F4788',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 15,
+  },
+  returnButton: {
+    flex: 1,
+    borderWidth: 2,
+    borderColor: '#1F4788',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  returnButtonText: {
+    color: '#1F4788',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default CobrosScreen;

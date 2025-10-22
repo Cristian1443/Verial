@@ -107,7 +107,11 @@ const WebDemoScreen = () => {
 
           <TouchableOpacity 
             style={styles.githubButton}
-            onPress={() => window.open('https://github.com/Cristian1443/Verial', '_blank')}
+            onPress={() => {
+              if (typeof window !== 'undefined') {
+                window.open('https://github.com/Cristian1443/Verial', '_blank');
+              }
+            }}
           >
             <Text style={styles.githubButtonText}>Ver en GitHub →</Text>
           </TouchableOpacity>

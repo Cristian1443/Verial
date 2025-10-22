@@ -1,20 +1,14 @@
 import React from 'react';
+import { Platform } from 'react-native';
 import RealmProviderWrapper from './src/context/RealmProviderWrapper';
-import WebDemoScreen from './src/screens/WebDemoScreen';
-import { LogBox, Platform } from 'react-native';
+import AppNavigatorWrapper from './src/navigation/AppNavigator';
 
-LogBox.ignoreLogs(['...']); 
-
-const App = () => {
-  // En web, mostrar pantalla demo informativa
+export default function App() {
+  // En web, mostrar la navegación sin Realm (solo UI)
   if (Platform.OS === 'web') {
-    return <WebDemoScreen />;
+    return <AppNavigatorWrapper />;
   }
 
-  // En móvil, usar Realm normalmente
-  return (
-    <RealmProviderWrapper />
-  );
-};
-
-export default App;
+  // En móvil, usar Realm completo
+  return <RealmProviderWrapper />;
+}

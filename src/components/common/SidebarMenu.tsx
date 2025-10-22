@@ -1,93 +1,166 @@
 // src/components/common/SidebarMenu.tsx
-
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
-const menuItems = [
-  { name: 'Panel', icon: '🏠', target: 'Dashboard' },
-  { name: 'Ventas', icon: '🧾', target: 'VentasScreen' },
-  { name: 'Cobros', icon: '💰', target: 'CobrosScreen' },
-  { name: 'Gastos', icon: '⛽', target: 'GastosScreen' },
-  { name: 'Clientes', icon: '👥', target: 'ClientesScreen' },
-  { name: 'Artículos', icon: '📦', target: 'ArticulosScreen' },
-  { name: 'Comunicación', icon: '🌐', target: 'SincronizacionScreen' },
-  { name: 'Almacén', icon: '🚚', target: 'AlmacenScreen' },
-  // ... Otros módulos: Documentación, Configuración
-];
+const SidebarMenu = ({ navigation, currentScreen }: { navigation: any; currentScreen: string }) => {
+  const menuItems = [
+    { id: 'Dashboard', icon: '🏠', label: 'Inicio', screen: 'Dashboard' },
+    { id: 'VentasScreen', icon: '📋', label: 'Ventas', screen: 'VentasScreen' },
+    { id: 'ClientesScreen', icon: '👥', label: 'Clientes', screen: 'ClientesScreen' },
+    { id: 'ArticulosScreen', icon: '📦', label: 'Artículos', screen: 'ArticulosScreen' },
+    { id: 'CobrosScreen', icon: '💰', label: 'Cobros', screen: 'CobrosScreen' },
+    { id: 'GastosScreen', icon: '📃', label: 'Gastos', screen: 'GastosScreen' },
+    { id: 'AlmacenScreen', icon: '🏪', label: 'Almacén', screen: 'AlmacenScreen' },
+    { id: 'SincronizacionScreen', icon: '🔄', label: 'Comunicación', screen: 'SincronizacionScreen' },
+    { id: 'DocumentacionScreen', icon: '📄', label: 'Documentos', screen: 'DocumentacionScreen' },
+    { id: 'ConfiguracionScreen', icon: '⚙️', label: 'Configuración', screen: 'ConfiguracionScreen' },
+  ];
 
-const SidebarMenu = ({ navigation, currentScreen }) => {
   return (
     <View style={styles.sidebar}>
-        <Text style={styles.logo}>V</Text> {/* Logo simplificado */}
-        <View style={styles.menuList}>
-            {menuItems.map((item) => (
-                <TouchableOpacity
-                    key={item.name}
-                    style={[
-                        styles.menuItem,
-                        currentScreen === item.target && styles.activeMenuItem,
-                    ]}
-                    onPress={() => navigation.navigate(item.target)}
-                >
-                    <Text style={styles.menuIcon}>{item.icon}</Text>
-                    <Text style={styles.menuText}>{item.name}</Text>
-                </TouchableOpacity>
-            ))}
+      {/* Logo */}
+      <View style={styles.logoContainer}>
+        <View style={styles.logoCircle}>
+          <Text style={styles.logoText}>V</Text>
         </View>
-        <TouchableOpacity style={styles.logoutButton}>
-            <Text style={styles.logoutText}>⚙️</Text>
+        <Text style={styles.logoSubtext}>Verial</Text>
+      </View>
+
+      {/* Menu Items */}
+      <ScrollView style={styles.menuItems}>
+        {menuItems.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={[
+              styles.menuItem,
+              currentScreen === item.id && styles.menuItemActive
+            ]}
+            onPress={() => navigation.navigate(item.screen)}
+          >
+            <View style={styles.menuItemContent}>
+              <Text style={[
+                styles.menuIcon,
+                currentScreen === item.id && styles.menuIconActive
+              ]}>
+                {item.icon}
+              </Text>
+              <Text style={[
+                styles.menuLabel,
+                currentScreen === item.id && styles.menuLabelActive
+              ]}>
+                {item.label}
+              </Text>
+            </View>
+            {currentScreen === item.id && <View style={styles.activeIndicator} />}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.footerButton}>
+          <Text style={styles.footerIcon}>❓</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.footerButton}>
+          <Text style={styles.footerIcon}>🚪</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   sidebar: {
-    width: 80, // Ancho reducido para tablets/diseño de mockup
-    backgroundColor: '#1F4788', // Color azul oscuro
-    paddingTop: 40,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 20,
-    height: '100%',
+    width: 80,
+    backgroundColor: '#1F4788',
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  logo: {
-    fontSize: 30,
+  logoContainer: {
+    alignItems: 'center',
+    paddingVertical: 25,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  logoCircle: {
+    width: 45,
+    height: 45,
+    borderRadius: 23,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  logoText: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 40,
+    color: '#1F4788',
   },
-  menuList: {
-    flex: 1,
-    width: '100%',
-  },
-  menuItem: {
-    alignItems: 'center',
-    paddingVertical: 15,
-    width: '100%',
-    opacity: 0.7,
-  },
-  activeMenuItem: {
-    backgroundColor: '#003366', // Azul más oscuro para activo
-    opacity: 1,
-  },
-  menuIcon: {
-    fontSize: 20,
-    color: 'white',
-    marginBottom: 5,
-  },
-  menuText: {
+  logoSubtext: {
     fontSize: 10,
     color: 'white',
-    textAlign: 'center',
+    fontWeight: '600',
   },
-  logoutButton: {
-    marginTop: 20,
+  menuItems: {
+    flex: 1,
+    paddingVertical: 10,
   },
-  logoutText: {
+  menuItem: {
+    position: 'relative',
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginVertical: 2,
+  },
+  menuItemActive: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+  menuItemContent: {
+    alignItems: 'center',
+  },
+  menuIcon: {
     fontSize: 24,
+    marginBottom: 4,
+  },
+  menuIconActive: {
+    transform: [{ scale: 1.1 }],
+  },
+  menuLabel: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.8)',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  menuLabelActive: {
     color: 'white',
-  }
+    fontWeight: 'bold',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    right: 0,
+    top: '25%',
+    bottom: '25%',
+    width: 4,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 4,
+    borderBottomLeftRadius: 4,
+  },
+  footer: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+    paddingVertical: 15,
+    alignItems: 'center',
+    gap: 10,
+  },
+  footerButton: {
+    padding: 5,
+  },
+  footerIcon: {
+    fontSize: 22,
+  },
 });
 
 export default SidebarMenu;

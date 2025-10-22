@@ -1,108 +1,193 @@
 // src/screens/DocumentacionScreen.tsx
-
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
-// Se necesita una librería para visualizar PDFs. Ej: react-native-pdf (npm install react-native-pdf)
-// import Pdf from 'react-native-pdf'; 
 
-type Document = {
-    id: number;
-    title: string;
-    filename: string;
-    size: string;
-};
+const documentos = [
+  { id: 1, nombre: 'Información.pdf', size: '2.5 MB' },
+  { id: 2, nombre: 'Campaña.pdf', size: '1.8 MB' },
+  { id: 3, nombre: 'Preguntas.pdf', size: '800 KB' },
+  { id: 4, nombre: 'Info.pdf', size: '1.2 MB' },
+];
 
 const DocumentacionScreen = ({ navigation }: { navigation: any }) => {
-    // Simulación de los documentos disponibles localmente (descargados desde el ERP)
-    const documents: Document[] = [
-        { id: 1, title: 'Catálogo General 2025', filename: 'catalogo_2025.pdf', size: '15 MB' },
-        { id: 2, title: 'Lista de Precios 4T 2025', filename: 'precios_4t.pdf', size: '3 MB' },
-        { id: 3, title: 'Instrucciones de Uso', filename: 'manual.pdf', size: '1 MB' },
-    ];
+  const [selectedDoc, setSelectedDoc] = useState(documentos[0]);
 
-    const [selectedDoc, setSelectedDoc] = useState<Document>(documents[0]);
-    
-    const handleViewDocument = (doc: Document) => {
-        setSelectedDoc(doc);
-        // Lógica real: Abrir el visor de PDF
-        Alert.alert("Abriendo Documento", `Mostrando: ${doc.title}. Se requiere el componente nativo de visor de PDF.`);
-    };
+  return (
+    <View style={styles.mainContainer}>
+      <SidebarMenu navigation={navigation} currentScreen="DocumentacionScreen" />
 
-    return (
-        <View style={styles.mainContainer}>
-            <SidebarMenu navigation={navigation} currentScreen="DocumentacionScreen" />
+      <View style={styles.contentContainer}>
+        <Text style={styles.headerTitle}>Documentos</Text>
 
-            <View style={styles.contentContainer}>
-                <Text style={styles.headerTitle}>Documentación y Catálogos</Text>
-                <Text style={styles.subHeader}>Catálogo en PDF de apoyo para el vendedor.</Text>
+        <View style={styles.contentSection}>
+          {/* Lista de Documentos */}
+          <View style={styles.docList}>
+            <TouchableOpacity style={styles.uploadButton}>
+              <Text style={styles.uploadIcon}>⬆️</Text>
+              <Text style={styles.uploadText}>Subir un nuevo documento</Text>
+            </TouchableOpacity>
 
-                <View style={styles.docSection}>
-                    {/* --- Lista de Documentos --- */}
-                    <ScrollView style={styles.listPanel}>
-                        {documents.map(doc => (
-                            <DocumentListItem 
-                                key={doc.id} 
-                                doc={doc} 
-                                onPress={() => handleViewDocument(doc)}
-                                isSelected={doc.id === selectedDoc.id}
-                            />
-                        ))}
-                    </ScrollView>
+            <ScrollView style={styles.docItems}>
+              {documentos.map((doc) => (
+                <TouchableOpacity
+                  key={doc.id}
+                  style={[
+                    styles.docItem,
+                    selectedDoc.id === doc.id && styles.docItemActive
+                  ]}
+                  onPress={() => setSelectedDoc(doc)}
+                >
+                  <Text style={styles.docIcon}>📄</Text>
+                  <View style={styles.docInfo}>
+                    <Text style={styles.docNombre}>{doc.nombre}</Text>
+                  </View>
+                  <View style={styles.docActions}>
+                    <TouchableOpacity style={styles.docActionBtn}>
+                      <Text>📋</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.docActionBtn}>
+                      <Text>⚙️</Text>
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
-                    {/* --- Visor de PDF (Simulación) --- */}
-                    <View style={styles.viewerPanel}>
-                        <Text style={styles.viewerTitle}>{selectedDoc?.title || 'Seleccione un documento'}</Text>
-                        
-                        {/* // IMPLEMENTACIÓN REAL con react-native-pdf:
-                            // <Pdf
-                            //     source={source}
-                            //     style={styles.pdfStyle}
-                            //     onLoadComplete={(numberOfPages, filePath) => { console.log(`Número de páginas: ${numberOfPages}`); }}
-                            // /> 
-                        */}
-                        <View style={styles.pdfPlaceholder}>
-                            <Text style={styles.placeholderText}>
-                                [Visor de PDF: El archivo {selectedDoc?.filename} estaría renderizado aquí.]
-                            </Text>
-                            <Text style={styles.placeholderText}>Tamaño: {selectedDoc?.size}</Text>
-                        </View>
-                    </View>
-                </View>
+          {/* Visor de Documento */}
+          <View style={styles.docViewer}>
+            <Text style={styles.viewerTitle}>{selectedDoc.nombre}</Text>
+            <View style={styles.pdfPlaceholder}>
+              <Text style={styles.pdfIcon}>📄</Text>
+              <Text style={styles.pdfText}>Vista previa del documento</Text>
+              <Text style={styles.pdfSize}>{selectedDoc.size}</Text>
             </View>
+          </View>
         </View>
-    );
+      </View>
+    </View>
+  );
 };
 
-const DocumentListItem = ({ doc, onPress, isSelected }: { doc: Document; onPress: () => void; isSelected: boolean }) => (
-    <TouchableOpacity 
-        style={[styles.listItem, isSelected && styles.listItemActive]} 
-        onPress={onPress}
-    >
-        <Text style={styles.docTitle}>📚 {doc.title}</Text>
-        <Text style={styles.docSize}>{doc.size}</Text>
-    </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
-    mainContainer: { flex: 1, flexDirection: 'row' },
-    contentContainer: { flex: 1, padding: 20 },
-    headerTitle: { fontSize: 28, fontWeight: 'bold', marginBottom: 10 },
-    subHeader: { fontSize: 14, color: 'gray', marginBottom: 20 },
-    docSection: { flexDirection: 'row', flex: 1, gap: 15 },
-    
-    listPanel: { flex: 1, backgroundColor: '#f9f9f9', padding: 10, borderRadius: 8 },
-    viewerPanel: { flex: 3, backgroundColor: '#fff', padding: 20, borderRadius: 8, borderWidth: 1, borderColor: '#eee' },
-    viewerTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 10 },
-
-    listItem: { padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee', flexDirection: 'row', justifyContent: 'space-between' },
-    listItemActive: { backgroundColor: '#E6EBF5', borderLeftWidth: 4, borderLeftColor: '#1F4788' },
-    docTitle: { fontWeight: 'bold' },
-    docSize: { fontSize: 12, color: 'gray' },
-
-    pdfPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#eee', borderRadius: 5 },
-    placeholderText: { color: '#666', textAlign: 'center', padding: 20 },
-    pdfStyle: { flex: 1, width: '100%', height: '100%' },
+  mainContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#f5f5f5',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 30,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 30,
+  },
+  contentSection: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 20,
+  },
+  docList: {
+    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+  },
+  uploadButton: {
+    backgroundColor: '#E6EBF5',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    borderColor: '#1F4788',
+  },
+  uploadIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  uploadText: {
+    fontSize: 14,
+    color: '#1F4788',
+    fontWeight: '600',
+  },
+  docItems: {
+    flex: 1,
+  },
+  docItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: '#f9f9f9',
+    gap: 12,
+  },
+  docItemActive: {
+    backgroundColor: '#E6EBF5',
+    borderLeftWidth: 4,
+    borderLeftColor: '#1F4788',
+  },
+  docIcon: {
+    fontSize: 24,
+  },
+  docInfo: {
+    flex: 1,
+  },
+  docNombre: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  docActions: {
+    flexDirection: 'row',
+    gap: 5,
+  },
+  docActionBtn: {
+    padding: 5,
+  },
+  docViewer: {
+    flex: 2,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 25,
+  },
+  viewerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  pdfPlaceholder: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  pdfIcon: {
+    fontSize: 80,
+    marginBottom: 20,
+  },
+  pdfText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 10,
+  },
+  pdfSize: {
+    fontSize: 14,
+    color: '#999',
+  },
 });
 
-export default DocumentacionScreen;
+export default SincronizacionScreen;

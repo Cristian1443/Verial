@@ -1,154 +1,240 @@
 // src/screens/DashboardScreen.tsx
-
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useQuery } from '@realm/react';
-import { NotaVenta, Gasto, Cliente } from '../models/Schemas';
-import SidebarMenu from '../components/common/SidebarMenu'; // Lo crearemos a continuación
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import SidebarMenu from '../components/common/SidebarMenu';
 
-const DashboardScreen = ({ navigation }) => {
-  // Datos del día (simulación de filtros por fecha actual)
-  const today = new Date().toISOString().substring(0, 10);
-  
-  // Usamos useQuery para obtener datos de Realm (operativa offline)
-  const ventasHoy = useQuery(NotaVenta).filtered(`Fecha == "${today}"`); 
-  const gastosHoy = useQuery(Gasto).filtered(`Fecha == "${today}"`);
-  const totalClientes = useQuery(Cliente).length;
-
-  // Cálculo de totales
-  const totalVentas = ventasHoy.sum('TotalImporte');
-  const totalGastos = gastosHoy.sum('Importe');
-  const totalCobros = 0; // Se calcularía al integrar el módulo de Cobros
-
+const DashboardScreen = ({ navigation }: { navigation: any }) => {
   return (
     <View style={styles.mainContainer}>
       <SidebarMenu navigation={navigation} currentScreen="Dashboard" />
-
+      
       <ScrollView style={styles.contentContainer}>
-        <Text style={styles.headerTitle}>Gestión Inteligente de Ventas en Ruta</Text>
-        
-        {/* --- Sección de Métricas del Día (Basado en el mockup) --- */}
-        <View style={styles.metricsRow}>
-          <MetricCard title="Ventas Hoy" value={`${totalVentas.toFixed(2)} €`} color="#1F4788" />
-          <MetricCard title="Gastos Hoy" value={`${totalGastos.toFixed(2)} €`} color="#1F4788" />
-          <MetricCard title="Cobros Pendientes" value={`0`} color="#1F4788" />
-          <MetricCard title="Clientes Sincronizados" value={`${totalClientes}`} color="#1F4788" />
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <Text style={styles.heroTitle}>Gestión Inteligente{'\n'}de Ventas en Ruta</Text>
+          <Text style={styles.heroSubtitle}>
+            Cambia rápidamente de una venta{'\n'}
+            rápida y sencilla con una plataforma{'\n'}
+            lista para la venta.
+          </Text>
+          
+          <View style={styles.heroButtons}>
+            <TouchableOpacity style={styles.buttonPrimary}>
+              <Text style={styles.buttonPrimaryText}>Ver Lecciones</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.buttonSecondary}>
+              <Text style={styles.buttonSecondaryText}>Acciones</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* --- Accesos Rápidos (Botones del Mockup) --- */}
-        <Text style={styles.sectionTitle}>Operaciones</Text>
-        <View style={styles.shortcutsRow}>
-            <ShortcutButton title="Crear Nota de Venta" icon="🛍️" onPress={() => navigation.navigate('VentasScreen')} />
-            <ShortcutButton title="Registrar Cobros" icon="💰" onPress={() => navigation.navigate('CobrosScreen')} />
-            <ShortcutButton title="Registrar Gastos" icon="⛽" onPress={() => navigation.navigate('GastosScreen')} />
+        {/* Métricas */}
+        <View style={styles.metricsContainer}>
+          <View style={styles.metricCard}>
+            <Text style={styles.metricLabel}>💰</Text>
+            <Text style={styles.metricValue}>2.450,00 €</Text>
+            <Text style={styles.metricSubtext}>Total Ventas</Text>
+          </View>
+          
+          <View style={styles.metricCard}>
+            <Text style={styles.metricLabel}>📊</Text>
+            <Text style={styles.metricValue}>180.50 €</Text>
+            <Text style={styles.metricSubtext}>Promedio</Text>
+          </View>
+          
+          <View style={styles.metricCard}>
+            <Text style={styles.metricLabel}>⭐</Text>
+            <Text style={styles.metricValue}>B</Text>
+            <Text style={styles.metricSubtext}>Calificación</Text>
+          </View>
         </View>
 
-        {/* --- Resumen del Día (Listado de Ventas/Gastos - Módulo 2) --- */}
-        <Text style={styles.sectionTitle}>Resumen de la Jornada</Text>
-        <View style={styles.summaryContainer}>
-            <Text>Ventas registradas: {ventasHoy.length}</Text>
-            <Text>Gastos registrados: {gastosHoy.length}</Text>
+        {/* Acciones Rápidas */}
+        <View style={styles.quickActionsSection}>
+          <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
+          
+          <View style={styles.actionsGrid}>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('VentasScreen')}
+            >
+              <Text style={styles.actionIcon}>📋</Text>
+              <Text style={styles.actionText}>Nueva{'\n'}Venta</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('ClientesScreen')}
+            >
+              <Text style={styles.actionIcon}>👥</Text>
+              <Text style={styles.actionText}>Clientes</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('ArticulosScreen')}
+            >
+              <Text style={styles.actionIcon}>📦</Text>
+              <Text style={styles.actionText}>Artículos</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        {/* Aquí iría la agenda de visitas [cite: 569] */}
 
+        {/* Familias de Favoritas */}
+        <View style={styles.favoritesCard}>
+          <View style={styles.favoritesHeader}>
+            <Text style={styles.favoritesTitle}>12</Text>
+            <Text style={styles.favoritesSubtitle}>Familias de Favoritas</Text>
+          </View>
+        </View>
       </ScrollView>
     </View>
   );
 };
 
-// Componentes reutilizables (Mover a src/components/dashboard/)
-const MetricCard = ({ title, value, color }) => (
-    <View style={[styles.card, { borderColor: color }]}>
-        <Text style={styles.cardValue}>{value}</Text>
-        <Text style={styles.cardTitle}>{title}</Text>
-    </View>
-);
-
-const ShortcutButton = ({ title, icon, onPress }) => (
-    <TouchableOpacity style={styles.shortcutButton} onPress={onPress}>
-        <Text style={styles.shortcutIcon}>{icon}</Text>
-        <Text style={styles.shortcutText}>{title}</Text>
-    </TouchableOpacity>
-);
-
-
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    flexDirection: 'row', // Para Sidebar y Contenido
-    backgroundColor: '#fff',
+    flexDirection: 'row',
+    backgroundColor: '#f5f5f5',
   },
   contentContainer: {
-    flex: 1, // El contenido toma el espacio restante
-    padding: 20,
+    flex: 1,
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '300',
-    marginBottom: 20,
-    color: '#333',
+  heroSection: {
+    backgroundColor: '#1F4788',
+    padding: 40,
+    paddingTop: 60,
+    paddingBottom: 60,
   },
-  metricsRow: {
+  heroTitle: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 15,
+    lineHeight: 44,
+  },
+  heroSubtitle: {
+    fontSize: 16,
+    color: '#E6EBF5',
+    marginBottom: 25,
+    lineHeight: 24,
+  },
+  heroButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 30,
     gap: 15,
   },
-  card: {
-    flex: 1,
-    padding: 15,
+  buttonPrimary: {
+    backgroundColor: 'white',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
     borderRadius: 8,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
   },
-  cardValue: {
-    fontSize: 22,
+  buttonPrimaryText: {
+    color: '#1F4788',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonSecondary: {
+    backgroundColor: 'transparent',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  buttonSecondaryText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  metricsContainer: {
+    flexDirection: 'row',
+    padding: 20,
+    gap: 15,
+  },
+  metricCard: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  metricLabel: {
+    fontSize: 24,
+    marginBottom: 8,
+  },
+  metricValue: {
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#1F4788',
+    marginBottom: 4,
   },
-  cardTitle: {
+  metricSubtext: {
     fontSize: 12,
-    marginTop: 5,
-    color: '#666',
+    color: '#999',
+  },
+  quickActionsSection: {
+    padding: 20,
+    paddingTop: 10,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 15,
-    marginTop: 10,
   },
-  shortcutsRow: {
+  actionsGrid: {
     flexDirection: 'row',
-    gap: 20,
-    marginBottom: 30,
+    gap: 15,
   },
-  shortcutButton: {
-    backgroundColor: '#E6EBF5',
-    padding: 20,
-    borderRadius: 8,
-    alignItems: 'center',
+  actionButton: {
     flex: 1,
+    backgroundColor: '#1F4788',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    minHeight: 100,
+    justifyContent: 'center',
   },
-  shortcutIcon: {
-    fontSize: 30,
-    marginBottom: 5,
+  actionIcon: {
+    fontSize: 32,
+    marginBottom: 8,
   },
-  shortcutText: {
-    fontSize: 12,
-    textAlign: 'center',
+  actionText: {
+    color: 'white',
+    fontSize: 14,
     fontWeight: '600',
+    textAlign: 'center',
   },
-  summaryContainer: {
-    padding: 15,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-    borderLeftWidth: 5,
+  favoritesCard: {
+    margin: 20,
+    marginTop: 10,
+    backgroundColor: '#E6EBF5',
+    padding: 25,
+    borderRadius: 12,
+    borderLeftWidth: 4,
     borderLeftColor: '#1F4788',
-  }
+  },
+  favoritesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  favoritesTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#1F4788',
+  },
+  favoritesSubtitle: {
+    fontSize: 16,
+    color: '#1F4788',
+  },
 });
 
 export default DashboardScreen;

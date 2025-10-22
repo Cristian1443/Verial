@@ -1,129 +1,231 @@
 // src/screens/ConfiguracionScreen.tsx
-
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Alert, Switch, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Switch } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
 
-// Simulación de SDK de Impresión para React Native (Generalmente librerías de terceros)
-const PrintingSDK = {
-    connect: (_address: string) => new Promise(resolve => {
-        setTimeout(() => resolve(true), 1000); // Simular conexión exitosa
-    }),
-    send: (_commands: string) => new Promise(resolve => {
-        setTimeout(() => resolve(true), 500); // Simular impresión exitosa
-    }),
-};
-
 const ConfiguracionScreen = ({ navigation }: { navigation: any }) => {
-    const [ipAddress, setIpAddress] = useState('192.168.1.100'); // Para conexión TCP/IP
-    const [printerName, setPrinterName] = useState('Zebra TLP2844');
-    const [isConnected, setIsConnected] = useState(false);
-    const [useBluetooth, setUseBluetooth] = useState(true);
+  const [url, setUrl] = useState('');
+  const [puerto, setPuerto] = useState('');
+  const [usuario, setUsuario] = useState('');
+  const [enableNotifications, setEnableNotifications] = useState(true);
+  const [enableSync, setEnableSync] = useState(false);
 
-    const handleConnectPrinter = async () => {
-        setIsConnected(false);
-        const connectionTarget = useBluetooth ? printerName : ipAddress;
+  return (
+    <View style={styles.mainContainer}>
+      <SidebarMenu navigation={navigation} currentScreen="ConfiguracionScreen" />
 
-        Alert.alert("Conectando", `Intentando conectar a ${connectionTarget}...`);
-        
-        // --- Lógica de Impresión Nativa (Integración de SDK) ---
-        const success = await PrintingSDK.connect(connectionTarget); 
+      <ScrollView style={styles.contentContainer}>
+        <Text style={styles.headerTitle}>Configuración</Text>
 
-        if (success) {
-            setIsConnected(true);
-            Alert.alert("Éxito", `Conexión con impresora ${printerName} establecida.`);
-        } else {
-            Alert.alert("Error", "No se pudo conectar con la impresora. Verifique la dirección/Bluetooth.");
-        }
-    };
+        {/* Sección de Conexión */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>⚙️ Configuración de Conexión</Text>
+          
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>URL del Servidor</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="https://servidor.verial.com"
+              value={url}
+              onChangeText={setUrl}
+            />
+          </View>
 
-    const handleTestPrint = async () => {
-        if (!isConnected) {
-            return Alert.alert("Error", "Debe conectar la impresora primero.");
-        }
-        
-        // Comandos de impresión matricial (ESC/P) o ZPL simulados
-        const testCommands = "N^XA^FO10,10^ADN,36,20^FDTEST ALBARÁN^FS^XZ"; 
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Puerto</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="8000"
+              value={puerto}
+              onChangeText={setPuerto}
+              keyboardType="numeric"
+            />
+          </View>
 
-        const success = await PrintingSDK.send(testCommands);
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Usuario</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="nombre_usuario"
+              value={usuario}
+              onChangeText={setUsuario}
+            />
+          </View>
 
-        if (success) {
-            Alert.alert("Impresión OK", "Se envió la impresión de prueba a la impresora matricial.");
-        } else {
-            Alert.alert("Error", "Fallo al enviar el comando de prueba.");
-        }
-    };
-
-    return (
-        <View style={styles.mainContainer}>
-            <SidebarMenu navigation={navigation} currentScreen="ConfiguracionScreen" />
-
-            <ScrollView style={styles.contentContainer}>
-                <Text style={styles.headerTitle}>Configuración y Mantenimiento</Text>
-                
-                {/* --- Configuración de Impresora Matricial  --- */}
-                <Text style={styles.sectionTitle}>Impresora Matricial (Albaranes)</Text>
-                
-                <View style={styles.switchRow}>
-                    <Text style={styles.label}>Usar Bluetooth</Text>
-                    <Switch
-                        onValueChange={setUseBluetooth}
-                        value={useBluetooth}
-                    />
-                </View>
-
-                {!useBluetooth && (
-                    <View>
-                        <Text style={styles.label}>Dirección IP (Conexión de red)</Text>
-                        <TextInput 
-                            style={styles.input} 
-                            value={ipAddress} 
-                            onChangeText={setIpAddress} 
-                            placeholder="Ej: 192.168.1.100" 
-                        />
-                    </View>
-                )}
-
-                <Text style={styles.label}>Nombre de la Impresora (Bluetooth o Referencia)</Text>
-                <TextInput 
-                    style={styles.input} 
-                    value={printerName} 
-                    onChangeText={setPrinterName} 
-                    placeholder="Ej: STAR TSP100" 
-                />
-                
-                <View style={styles.statusRow}>
-                    <Text style={[styles.label, {flex: 1}]}>Estado de la Conexión:</Text>
-                    <Text style={[styles.statusText, {color: isConnected ? 'green' : 'red'}]}>
-                        {isConnected ? 'Conectada' : 'Desconectada'}
-                    </Text>
-                </View>
-
-                <Button title="Conectar Impresora" onPress={handleConnectPrinter} disabled={isConnected} />
-                <View style={{ marginTop: 10 }}>
-                    <Button title="Impresión de Prueba" onPress={handleTestPrint} disabled={!isConnected} color="#555" />
-                </View>
-                
-                {/* --- Otras Configuraciones --- */}
-                <Text style={styles.sectionTitle}>Otros</Text>
-                <Text style={styles.infoText}>Aquí se configurarían la agenda de visitas y el login de Administrador/Vendedor.</Text>
-
-            </ScrollView>
+          <TouchableOpacity style={styles.testButton}>
+            <Text style={styles.testButtonText}>🔗 Probar Conexión</Text>
+          </TouchableOpacity>
         </View>
-    );
+
+        {/* Sección de Preferencias */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🔔 Preferencias</Text>
+          
+          <View style={styles.switchRow}>
+            <Text style={styles.switchLabel}>Notificaciones push</Text>
+            <Switch
+              value={enableNotifications}
+              onValueChange={setEnableNotifications}
+              trackColor={{ false: '#ddd', true: '#1F4788' }}
+            />
+          </View>
+
+          <View style={styles.switchRow}>
+            <Text style={styles.switchLabel}>Sincronización automática</Text>
+            <Switch
+              value={enableSync}
+              onValueChange={setEnableSync}
+              trackColor={{ false: '#ddd', true: '#1F4788' }}
+            />
+          </View>
+        </View>
+
+        {/* Información de la App */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>ℹ️ Información de la App</Text>
+          
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Versión:</Text>
+            <Text style={styles.infoValue}>1.0.0</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Última sincronización:</Text>
+            <Text style={styles.infoValue}>Nunca</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Base de datos:</Text>
+            <Text style={styles.infoValue}>Realm 20.2.0</Text>
+          </View>
+        </View>
+
+        {/* Botones de acción */}
+        <TouchableOpacity style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>💾 Guardar Configuración</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.dangerButton}>
+          <Text style={styles.dangerButtonText}>🗑️ Limpiar Datos Locales</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    mainContainer: { flex: 1, flexDirection: 'row' },
-    contentContainer: { flex: 1, padding: 20 },
-    headerTitle: { fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
-    sectionTitle: { fontSize: 20, fontWeight: 'bold', marginTop: 30, marginBottom: 15, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 5 },
-    label: { fontSize: 16, fontWeight: '600', marginBottom: 5 },
-    input: { height: 40, borderColor: '#ccc', borderWidth: 1, borderRadius: 5, paddingHorizontal: 10, marginBottom: 15 },
-    switchRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
-    statusRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingVertical: 5 },
-    statusText: { fontSize: 16, fontWeight: 'bold' },
-    infoText: { fontSize: 14, color: 'gray' },
+  mainContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#f5f5f5',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 30,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 30,
+  },
+  section: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 25,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 20,
+  },
+  formGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#555',
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+  },
+  testButton: {
+    backgroundColor: '#1F4788',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  testButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  switchRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  switchLabel: {
+    fontSize: 15,
+    color: '#333',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: '#666',
+  },
+  infoValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  dangerButton: {
+    backgroundColor: '#f44336',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  dangerButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default ConfiguracionScreen;

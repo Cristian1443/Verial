@@ -1,127 +1,208 @@
 // src/screens/LoginScreen.tsx
-
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ActivityIndicator, Alert, ScrollView } from 'react-native';
-import { useRealm } from '@realm/react';
-import { sincronizarAgentes, sincronizarClientes, sincronizarArticulos } from '../services/Sincronizador';
-// Importar estilos de mockup si estuvieran definidos
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 
-const LoginScreen = ({ navigation }) => {
-  const realm = useRealm();
-  const [loading, setLoading] = useState(false);
-  const [syncStatus, setSyncStatus] = useState('Esperando credenciales...');
-  const [agentId, setAgentId] = useState(''); 
+const LoginScreen = ({ navigation }: { navigation: any }) => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const runFullSync = async () => {
-    setLoading(true);
-    let success = true;
-
-    // 1. Sincronizar Agentes (vendedores)
-    setSyncStatus('Sincronizando Vendedores...');
-    if (!await sincronizarAgentes(realm)) { success = false; }
-
-    // 2. Sincronizar Clientes
-    setSyncStatus('Sincronizando Clientes...');
-    if (success && !await sincronizarClientes(realm)) { success = false; }
-
-    // 3. Sincronizar Artículos
-    setSyncStatus('Sincronizando Artículos...');
-    if (success && !await sincronizarArticulos(realm)) { success = false; }
-
-    // 4. (Pendiente) Sincronizar Stock, Precios, etc.
-    // ...
-
-    setLoading(false);
-    return success;
+  const handleLogin = () => {
+    // Simular login exitoso
+    navigation.replace('Dashboard');
   };
 
-  const handleLogin = async () => {
-    if (!agentId || !password) {
-      Alert.alert("Error", "Debe introducir el ID de Vendedor y Contraseña.");
-      return;
-    }
-
-    // --- Simulación de Autenticación (Reemplazar con lógica real si el ERP lo requiere) ---
-    // En la versión final, aquí se validaría el NIF/WebUser/WebPassword si Verial lo soporta.
-    // Por ahora, asumimos que el login es solo una clave de acceso local al ID de Agente.
-
-    setSyncStatus('Credenciales Aceptadas. Iniciando sincronización de datos...');
-    const syncSuccess = await runFullSync();
-
-    if (syncSuccess) {
-        Alert.alert("Sincronización Completa", "Datos listos. Accediendo al Dashboard.");
-        // Navegación exitosa
-        navigation.replace('Dashboard');
-    } else {
-        setSyncStatus('Error crítico en la sincronización. Revisar conexión.');
-        Alert.alert("Error Crítico", "No se pudo completar la sincronización. Intente de nuevo.");
-    }
+  const handleRecoverPassword = () => {
+    alert('Funcionalidad de recuperación de contraseña');
   };
-
-  // El diseño debe ser responsivo y adaptable a tablet (mockup Tablet)
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text style={styles.syncStatusText}>{syncStatus}</Text>
-        <Text>Modo de operación: Offline-First. Esto solo ocurre al inicio o al forzar la sincronización.</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-      {/* Basado en el mockup de Iniciar Sesión */}
-      <Text style={styles.title}>Iniciar sesión</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="ID de Vendedor (Agente)"
-        keyboardType="numeric"
-        value={agentId}
-        onChangeText={setAgentId}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-      <Button title="Continuar" onPress={handleLogin} />
+      {/* Imagen de fondo */}
+      <View style={styles.imageContainer}>
+        <Image 
+          source={{ uri: 'https://images.unsplash.com/photo-1522204523234-8729aa6e3d5f?w=800' }}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
+      </View>
+
+      {/* Panel de Login */}
+      <View style={styles.loginPanel}>
+        <View style={styles.loginCard}>
+          {/* Logo y título */}
+          <View style={styles.logoContainer}>
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoText}>V</Text>
+            </View>
+            <Text style={styles.poweredBy}>TEXBRO Plus</Text>
+          </View>
+
+          <Text style={styles.title}>Iniciar sesión</Text>
+
+          {/* Botón de Escanear Código */}
+          <TouchableOpacity style={styles.scanButton}>
+            <Text style={styles.scanButtonText}>📷 Escanear Código</Text>
+          </TouchableOpacity>
+
+          {/* Separador */}
+          <View style={styles.separatorContainer}>
+            <View style={styles.separatorLine} />
+            <Text style={styles.separatorText}>crear/Identificarse</Text>
+            <View style={styles.separatorLine} />
+          </View>
+
+          {/* Formulario de login */}
+          <TextInput
+            style={styles.input}
+            placeholder="Usuario/Email"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+          />
+
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+
+          <TouchableOpacity onPress={handleRecoverPassword}>
+            <Text style={styles.forgotPassword}>¿Olvidó contraseña?</Text>
+          </TouchableOpacity>
+
+          {/* Botón de Iniciar Sesión */}
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>Iniciar sesión</Text>
+          </TouchableOpacity>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>TEXBRO Plus</Text>
+          </View>
+        </View>
+      </View>
     </View>
   );
 };
 
-// Estilos básicos (ajustar para el look and feel de los mockups)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: 'row',
+  },
+  imageContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+  },
+  loginPanel: {
+    flex: 1,
+    backgroundColor: 'white',
     justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#fff',
+    alignItems: 'center',
+    padding: 40,
+  },
+  loginCard: {
+    width: '100%',
+    maxWidth: 400,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  logoCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#1F4788',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  logoText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  poweredBy: {
+    fontSize: 12,
+    color: '#666',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 40,
+    color: '#333',
+    marginBottom: 20,
     textAlign: 'center',
-    color: '#000',
+  },
+  scanButton: {
+    backgroundColor: '#4CAF50',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  scanButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  separatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  separatorLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ddd',
+  },
+  separatorText: {
+    marginHorizontal: 15,
+    color: '#999',
+    fontSize: 12,
   },
   input: {
     height: 50,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 8,
-    marginBottom: 15,
     paddingHorizontal: 15,
-    backgroundColor: 'white',
+    marginBottom: 15,
+    fontSize: 16,
+    backgroundColor: '#fafafa',
   },
-  syncStatusText: {
-    marginTop: 15,
-    textAlign: 'center',
-    color: 'gray',
-  }
+  forgotPassword: {
+    color: '#1F4788',
+    fontSize: 14,
+    textAlign: 'right',
+    marginBottom: 20,
+  },
+  loginButton: {
+    backgroundColor: '#1F4788',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  loginButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  footerText: {
+    color: '#999',
+    fontSize: 12,
+  },
 });
 
 export default LoginScreen;

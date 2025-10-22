@@ -1,9 +1,9 @@
 // src/models/Schemas.ts
-
+import { Platform } from 'react-native';
 import { Realm, createRealmContext } from '@realm/react';
 
 // --- Maestros y Configuración ---
-export class Configuracion extends Realm.Object { // Para guardar la última fecha de sincronización
+export class Configuracion extends Realm.Object {
   clave!: string;
   valor!: string;
 
@@ -28,11 +28,10 @@ export class Cliente extends Realm.Object {
     name: 'Cliente',
     primaryKey: 'id',
     properties: {
-      id: 'int', // Identificador en Verial
-      NIF: 'string?', // NIF/CIF
-      Nombre: 'string', // Nombre
-      Apellido1: 'string?', // Primer apellido
-      // Otros campos...
+      id: 'int',
+      NIF: 'string?',
+      Nombre: 'string',
+      Apellido1: 'string?',
       UltimaSincronizacion: 'date',
     },
   };
@@ -51,18 +50,16 @@ export class Articulo extends Realm.Object {
     name: 'Articulo',
     primaryKey: 'id',
     properties: {
-      id: 'int', // Identificador en Verial
-      Nombre: 'string', // Nombre del artículo
-      Referencia: 'string?', // Código de barras o referencia
-      PorcentajeIVA: 'float?', // Porcentaje de IVA
-      Stock: 'float', // Stock desde GetStockArticulosWS
-      PrecioTarifa: 'float', // Precio desde GetCondicionesTarifaWS
+      id: 'int',
+      Nombre: 'string',
+      Referencia: 'string?',
+      PorcentajeIVA: 'float?',
+      Stock: 'float',
+      PrecioTarifa: 'float',
       UltimaSincronizacion: 'date',
     },
   };
 }
-
-// --- Transacciones (Operaciones Offline) ---
 
 export class LineaVenta extends Realm.Object {
     _id!: Realm.BSON.ObjectId;
@@ -77,7 +74,7 @@ export class LineaVenta extends Realm.Object {
         properties: {
             _id: 'objectId', 
             ID_Articulo: 'int',
-            Uds: 'float', // Unidades
+            Uds: 'float',
             Precio: 'float',
             Dto: 'float',
         }
@@ -98,19 +95,19 @@ export class NotaVenta extends Realm.Object {
     name: 'NotaVenta',
     primaryKey: 'idLocal',
     properties: {
-      idLocal: 'string', // PK local (UUID)
-      idVerial: 'int?', // ID asignado por Verial
-      Referencia: 'string?', // Referencia App (se envía a Verial)
+      idLocal: 'string',
+      idVerial: 'int?',
+      Referencia: 'string?',
       Fecha: 'date',
       ID_Cliente: 'int', 
       TotalImporte: 'float',
-      EstadoSincro: 'string', // 'PENDIENTE', 'SINCRONIZADO', 'ERROR'
-      lineas: 'LineaVenta[]', // Contenido
+      EstadoSincro: 'string',
+      lineas: 'LineaVenta[]',
     },
   };
 }
 
-export class Gasto extends Realm.Object { // Módulo de Gastos del Vendedor
+export class Gasto extends Realm.Object {
   idLocal!: string;
   Tipo!: string;
   Importe!: number;
@@ -122,7 +119,7 @@ export class Gasto extends Realm.Object { // Módulo de Gastos del Vendedor
     primaryKey: 'idLocal',
     properties: {
       idLocal: 'string',
-      Tipo: 'string', // Comidas, combustible, etc.
+      Tipo: 'string',
       Importe: 'float',
       Fecha: 'date',
       EstadoSincro: 'string', 
@@ -137,7 +134,7 @@ export class StockFurgon extends Realm.Object {
 
   static schema = {
     name: 'StockFurgon',
-    primaryKey: 'ID_Articulo', // Asumimos una única entrada por artículo por simplicidad
+    primaryKey: 'ID_Articulo',
     properties: {
       ID_Articulo: 'int',
       UnidadesActuales: 'float',
@@ -151,4 +148,38 @@ export const realmConfig = {
     schema: [Configuracion, Cliente, Articulo, NotaVenta, LineaVenta, Gasto, StockFurgon],
 };
 
-export const { RealmProvider, useRealm, useObject, useQuery } = createRealmContext(realmConfig);
+// Crear contexto de Realm SOLO si NO estamos en web
+let RealmProvider: any;
+let useRealm: any;
+let useObject: any;
+let useQuery: any;
+
+if (Platform.OS !== 'web') {
+  const context = createRealmContext(realmConfig);
+  RealmProvider = context.RealmProvider;
+  useRealm = context.useRealm;
+  useObject = context.useObject;
+  useQuery = context.useQuery;
+} else {
+  // Mocks para web
+  RealmProvider = ({ children }: any) => children;
+  
+  useRealm = () => ({
+    objects: () => [],
+    write: (callback: any) => callback && callback(),
+    create: () => {},
+    objectForPrimaryKey: () => null,
+  });
+  
+  useQuery = () => {
+    const mockArray: any = [];
+    mockArray.filtered = () => mockArray;
+    mockArray.sorted = () => mockArray;
+    mockArray.sum = () => 0;
+    return mockArray;
+  };
+  
+  useObject = () => null;
+}
+
+export { RealmProvider, useRealm, useObject, useQuery };

@@ -1,166 +1,283 @@
 // src/screens/ArticulosScreen.tsx
-
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ViewStyle } from 'react-native';
-import { useQuery, useRealm } from '@realm/react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
-import { Articulo } from '../models/Schemas';
+
+// Datos de ejemplo
+const articulosEjemplo = [
+  { id: 1, Nombre: 'Croqueta Jamón', Referencia: 'CRQ-001', Stock: 150, PrecioTarifa: 12.50 },
+  { id: 2, Nombre: 'Croqueta Jamón', Referencia: 'CRQ-002', Stock: 200, PrecioTarifa: 11.80 },
+  { id: 3, Nombre: 'Croqueta Jamón', Referencia: 'CRQ-003', Stock: 80, PrecioTarifa: 13.20 },
+  { id: 4, Nombre: 'Croqueta Jamón', Referencia: 'CRQ-004', Stock: 120, PrecioTarifa: 12.00 },
+];
 
 const ArticulosScreen = ({ navigation }: { navigation: any }) => {
-    // Consulta offline de todos los artículos (Maestro sincronizado)
-    const articulos = useQuery(Articulo).sorted('Nombre');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedArticuloId, setSelectedArticuloId] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('Todos');
 
-    // Búsqueda offline por nombre o referencia
-    const filteredArticulos = articulos.filtered(
-        'Nombre CONTAINS[c] $0 OR Referencia CONTAINS[c] $0',
-        searchTerm
-    );
+  const filters = ['Todos', 'Finas', 'Preconcertadas', 'Verduras', 'Congeladas'];
 
-    return (
-        <View style={styles.mainContainer}>
-            <SidebarMenu navigation={navigation} currentScreen="ArticulosScreen" />
+  return (
+    <View style={styles.mainContainer}>
+      <SidebarMenu navigation={navigation} currentScreen="ArticulosScreen" />
 
-            <View style={styles.contentContainer}>
-                <Text style={styles.headerTitle}>Artículos</Text>
+      <View style={styles.contentContainer}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Artículos</Text>
+          
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Text>📊</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Text>📋</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Text>⚙️</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-                <View style={styles.listSection}>
-                    {/* --- Panel de Listado --- */}
-                    <View style={styles.listPanel}>
-                        {/* Buscador y Filtros */}
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Buscar Artículos..."
-                            value={searchTerm}
-                            onChangeText={setSearchTerm}
-                        />
-                        {/* Filtros rápidos: Todos, Asociados, Medidas, Colecciones */}
-                        <View style={styles.filterBar}>
-                             <FilterButton title="Todos" isActive={true} />
-                             <FilterButton title="Asociados" isActive={false} />
-                             <FilterButton title="Medidas" isActive={false} />
-                             <FilterButton title="Clasificación" isActive={false} />
-                        </View>
+        {/* Buscador */}
+        <TextInput
+          style={styles.searchInput}
+          placeholder="🔍 Buscar artículo..."
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+        />
 
-                        {/* Listado de Artículos (Simulación del listado de tarjetas) */}
-                        <ScrollView>
-                            {filteredArticulos.map(art => (
-                                <ArticuloListItem 
-                                    key={art.id} 
-                                    articulo={art} 
-                                    onPress={() => setSelectedArticuloId(art.id)}
-                                    isSelected={art.id === selectedArticuloId}
-                                />
-                            ))}
-                            {filteredArticulos.length === 0 && <Text style={styles.emptyText}>No se encontraron artículos.</Text>}
-                        </ScrollView>
-                    </View>
-                    
-                    {/* --- Panel de Detalle --- */}
-                    <ArticuloDetailPanel 
-                        articuloId={selectedArticuloId} 
-                        style={styles.detailPanel}
-                    />
+        {/* Módulos superiores */}
+        <View style={styles.modulesRow}>
+          <TouchableOpacity style={styles.moduleButton}>
+            <Text style={styles.moduleIcon}>📋</Text>
+            <Text style={styles.moduleText}>De{'\n'}Favoritas</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.moduleButton}>
+            <Text style={styles.moduleIcon}>👤</Text>
+            <Text style={styles.moduleText}>Escaneado</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Filtros */}
+        <View style={styles.filtersContainer}>
+          {filters.map((filter) => (
+            <TouchableOpacity
+              key={filter}
+              style={[
+                styles.filterChip,
+                selectedFilter === filter && styles.filterChipActive
+              ]}
+              onPress={() => setSelectedFilter(filter)}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  selectedFilter === filter && styles.filterChipTextActive
+                ]}
+              >
+                {filter}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Lista de Artículos */}
+        <ScrollView style={styles.articlesList}>
+          {articulosEjemplo.map((articulo) => (
+            <View key={articulo.id} style={styles.articleItem}>
+              <View style={styles.articleIcon}>
+                <Text style={styles.articleIconText}>📦</Text>
+              </View>
+              <View style={styles.articleInfo}>
+                <Text style={styles.articleNombre}>{articulo.Nombre}</Text>
+                <View style={styles.articleBadge}>
+                  <Text style={styles.articleBadgeText}>Ver Nota</Text>
                 </View>
+              </View>
+              <View style={styles.articleActions}>
+                <TouchableOpacity style={styles.articleActionBtn}>
+                  <Text>⋮</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-        </View>
-    );
+          ))}
+        </ScrollView>
+      </View>
+    </View>
+  );
 };
 
-// Componente para los botones de filtro
-const FilterButton = ({ title, isActive }: { title: string; isActive: boolean }) => (
-    <TouchableOpacity style={[styles.filterButton, isActive && styles.filterButtonActive]}>
-        <Text style={[styles.filterButtonText, isActive && styles.filterButtonTextActive]}>
-            {title}
-        </Text>
-    </TouchableOpacity>
+const InfoItem = ({ label, value }: { label: string; value: string }) => (
+  <View style={styles.infoItem}>
+    <Text style={styles.infoLabel}>{label}:</Text>
+    <Text style={styles.infoValue}>{value || '-'}</Text>
+  </View>
 );
-
-// Componente para una fila del listado
-const ArticuloListItem = ({ articulo, onPress, isSelected }: { articulo: Articulo; onPress: () => void; isSelected: boolean }) => (
-    <TouchableOpacity 
-        style={[styles.listItem, isSelected && styles.listItemActive]} 
-        onPress={onPress}
-    >
-        <Text style={styles.itemTitle}>{articulo.Nombre}</Text>
-        <Text style={styles.itemRef}>Ref: {articulo.Referencia}</Text>
-        <Text style={styles.itemStock}>Stock: {articulo.Stock}</Text>
-    </TouchableOpacity>
-);
-
-// Componente para el panel de detalle
-const ArticuloDetailPanel = ({ articuloId, style }: { articuloId: number | null; style: ViewStyle }) => {
-    const realm = useRealm();
-    const articulo = articuloId ? realm.objectForPrimaryKey<Articulo>('Articulo', articuloId) : null;
-    
-    if (!articulo) {
-        return (
-            <View style={style}>
-                <Text style={styles.detailPlaceholder}>Seleccione un artículo para ver los detalles.</Text>
-            </View>
-        );
-    }
-
-    // Nota: Aquí se mostrarían más datos del Articulo (Descripción, Precios, Imágenes - usando GetImagenesArticulosWS)
-    return (
-        <View style={style}>
-            <Text style={styles.detailTitle}>{articulo.Nombre}</Text>
-            <View style={styles.detailInfoBlock}>
-                <Text style={styles.detailInfoLabel}>Referencia:</Text>
-                <Text style={styles.detailInfoValue}>{articulo.Referencia}</Text>
-            </View>
-            <View style={styles.detailInfoBlock}>
-                <Text style={styles.detailInfoLabel}>Precio Tarifa:</Text>
-                <Text style={styles.detailInfoValue}>{articulo.PrecioTarifa.toFixed(2)} €</Text>
-            </View>
-            <View style={styles.detailInfoBlock}>
-                <Text style={styles.detailInfoLabel}>Stock Disponible (Global):</Text>
-                <Text style={styles.detailInfoValue}>{articulo.Stock}</Text>
-            </View>
-            <Text style={styles.detailInfoLabel}>Descripción:</Text>
-            <Text>Aquí iría la descripción ampliada del artículo...</Text>
-        </View>
-    );
-};
-
 
 const styles = StyleSheet.create({
-    mainContainer: { flex: 1, flexDirection: 'row' },
-    contentContainer: { flex: 1, padding: 20 },
-    headerTitle: { fontSize: 28, fontWeight: 'bold', marginBottom: 20 },
-    listSection: { flexDirection: 'row', flex: 1, gap: 15 }, // Layout para dos paneles
-    
-    listPanel: { flex: 1, backgroundColor: '#f9f9f9', padding: 10, borderRadius: 8 },
-    detailPanel: { 
-        flex: 1.5, 
-        backgroundColor: '#fff', 
-        padding: 20, 
-        borderRadius: 8, 
-        borderLeftWidth: 1, 
-        borderColor: '#eee' 
-    },
-    detailPlaceholder: { color: 'gray', textAlign: 'center', marginTop: 50 },
-
-    searchInput: { height: 40, borderColor: '#ccc', borderWidth: 1, borderRadius: 8, paddingHorizontal: 15, marginBottom: 10 },
-    
-    filterBar: { flexDirection: 'row', marginBottom: 15, gap: 5 },
-    filterButton: { padding: 8, borderRadius: 5, backgroundColor: '#fff', borderWidth: 1, borderColor: '#ccc' },
-    filterButtonActive: { backgroundColor: '#1F4788', borderColor: '#1F4788' },
-    filterButtonText: { color: '#333', fontSize: 12 },
-    filterButtonTextActive: { color: 'white', fontWeight: 'bold' },
-    
-    listItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee', backgroundColor: 'white' },
-    listItemActive: { backgroundColor: '#E6EBF5', borderLeftWidth: 4, borderLeftColor: '#1F4788' },
-    itemTitle: { fontWeight: 'bold' },
-    itemRef: { fontSize: 12, color: 'gray' },
-    itemStock: { fontSize: 12, color: 'green' },
-
-    detailTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#eee', paddingBottom: 10 },
-    detailInfoBlock: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-    detailInfoLabel: { fontWeight: '600' },
-    detailInfoValue: { color: '#1F4788', fontWeight: 'bold' },
-    emptyText: { textAlign: 'center', marginTop: 50, color: 'gray' },
+  mainContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#f5f5f5',
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  searchInput: {
+    height: 45,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 20,
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  modulesRow: {
+    flexDirection: 'row',
+    gap: 15,
+    marginBottom: 20,
+  },
+  moduleButton: {
+    backgroundColor: '#1F4788',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    minWidth: 120,
+  },
+  moduleIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  moduleText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  filtersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: 20,
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  filterChipActive: {
+    backgroundColor: '#1F4788',
+    borderColor: '#1F4788',
+  },
+  filterChipText: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
+  },
+  filterChipTextActive: {
+    color: 'white',
+  },
+  articlesList: {
+    flex: 1,
+  },
+  articleItem: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 10,
+    alignItems: 'center',
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  articleIcon: {
+    width: 45,
+    height: 45,
+    borderRadius: 8,
+    backgroundColor: '#E6EBF5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  articleIconText: {
+    fontSize: 24,
+  },
+  articleInfo: {
+    flex: 1,
+  },
+  articleNombre: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  articleBadge: {
+    backgroundColor: '#1F4788',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  articleBadgeText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  articleActions: {
+    padding: 5,
+  },
+  articleActionBtn: {
+    padding: 5,
+  },
+  infoItem: {
+    marginBottom: 8,
+  },
+  infoLabel: {
+    fontSize: 11,
+    color: '#999',
+  },
+  infoValue: {
+    fontSize: 12,
+    color: '#333',
+    fontWeight: '500',
+  },
 });
 
 export default ArticulosScreen;

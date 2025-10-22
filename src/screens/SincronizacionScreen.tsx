@@ -1,50 +1,35 @@
 // src/screens/SincronizacionScreen.tsx
-
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useRealm } from '@realm/react';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
-import { sincronizarClientes, sincronizarArticulos, sincronizarOperacionesVenta } from '../services/Sincronizador';
 
 const SincronizacionScreen = ({ navigation }: { navigation: any }) => {
-  const realm = useRealm();
-  const [loading, setLoading] = useState(false);
-  const [log, setLog] = useState<string[]>([]);
+  const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
-  const appendLog = (message: string) => {
-    setLog(prev => [`[${new Date().toLocaleTimeString()}] ${message}`, ...prev]);
+  const handleExport = () => {
+    setExporting(true);
+    setTimeout(() => {
+      setExporting(false);
+      alert('Datos exportados correctamente');
+    }, 2000);
   };
 
-  const handleFullSync = async () => {
-    if (loading) return;
-    setLoading(true);
-    setLog([]);
-    appendLog("--- INICIANDO SINCRONIZACIÓN COMPLETA ---");
+  const handleImport = () => {
+    setImporting(true);
+    setTimeout(() => {
+      setImporting(false);
+      alert('Datos importados correctamente');
+    }, 2000);
+  };
 
-    try {
-        // --- FASE 1: UPLOAD (Sincronización de Salida) ---
-        appendLog("FASE 1/3: Subiendo Notas de Venta pendientes...");
-        const uploadedCount = await sincronizarOperacionesVenta(realm);
-        appendLog(`Éxito: ${uploadedCount} Notas de Venta subidas.`);
-
-        // --- FASE 2: DOWNLOAD MAESTROS (Sincronización de Entrada) ---
-        appendLog("FASE 2/3: Descargando Clientes (actualizaciones)...");
-        const syncClientes = await sincronizarClientes(realm);
-        appendLog(syncClientes ? "Clientes actualizados." : "Clientes: Error.");
-
-        appendLog("FASE 3/3: Descargando Artículos (actualizaciones)...");
-        const syncArticulos = await sincronizarArticulos(realm);
-        appendLog(syncArticulos ? "Artículos actualizados." : "Artículos: Error.");
-        
-        // Aquí se agregarían las sincronizaciones de Stock, Precios, etc.
-
-        appendLog("--- SINCRONIZACIÓN FINALIZADA ---");
-
-    } catch (error) {
-        appendLog(`ERROR CRÍTICO: ${error instanceof Error ? error.message : String(error)}`);
-    } finally {
-        setLoading(false);
-    }
+  const handleSync = () => {
+    setSyncing(true);
+    setTimeout(() => {
+      setSyncing(false);
+      alert('Sincronización completada');
+    }, 3000);
   };
 
   return (
@@ -52,31 +37,76 @@ const SincronizacionScreen = ({ navigation }: { navigation: any }) => {
       <SidebarMenu navigation={navigation} currentScreen="SincronizacionScreen" />
 
       <View style={styles.contentContainer}>
-        <Text style={styles.headerTitle}>Módulo de Comunicación (Sincronización)</Text>
+        <View style={styles.cardsContainer}>
+          {/* Card Exportando Datos */}
+          <View style={styles.card}>
+            <View style={styles.iconCircle}>
+              <Text style={styles.iconText}>⬆️</Text>
+            </View>
+            <Text style={styles.cardTitle}>Exportando{'\n'}Datos</Text>
+            
+            {exporting && (
+              <ActivityIndicator size="large" color="#1F4788" style={styles.loader} />
+            )}
+          </View>
 
-        <TouchableOpacity 
-          style={loading ? styles.syncButtonDisabled : styles.syncButton} 
-          onPress={handleFullSync}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.syncButtonText}>Sincronización Diaria Ahora</Text>
-          )}
-        </TouchableOpacity>
-        
-        <Text style={styles.infoText}>
-            La aplicación funciona offline. Use este módulo para enviar Notas de Venta y recibir las últimas actualizaciones de Clientes/Artículos.
-        </Text>
-        
-        {/* Log de Sincronización */}
-        <Text style={styles.logTitle}>Registro de Actividad:</Text>
-        <ScrollView style={styles.logContainer}>
-            {log.map((entry, index) => (
-                <Text key={index} style={styles.logEntry}>{entry}</Text>
-            ))}
-        </ScrollView>
+          {/* Card Importando Datos */}
+          <View style={styles.card}>
+            <View style={styles.iconCircle}>
+              <Text style={styles.iconText}>⬇️</Text>
+            </View>
+            <Text style={styles.cardTitle}>Importando{'\n'}Datos</Text>
+            
+            {importing && (
+              <ActivityIndicator size="large" color="#1F4788" style={styles.loader} />
+            )}
+          </View>
+
+          {/* Card Sincronización */}
+          <View style={styles.card}>
+            <View style={styles.iconCircle}>
+              <Text style={styles.iconText}>🔄</Text>
+            </View>
+            <Text style={styles.cardTitle}>Sincronización</Text>
+            
+            {syncing && (
+              <ActivityIndicator size="large" color="#1F4788" style={styles.loader} />
+            )}
+          </View>
+        </View>
+
+        {/* Botones de acción */}
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity 
+            style={[styles.actionButton, exporting && styles.actionButtonDisabled]}
+            onPress={handleExport}
+            disabled={exporting}
+          >
+            <Text style={styles.actionButtonText}>
+              {exporting ? 'Exportando...' : 'Exportar Datos'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.actionButton, importing && styles.actionButtonDisabled]}
+            onPress={handleImport}
+            disabled={importing}
+          >
+            <Text style={styles.actionButtonText}>
+              {importing ? 'Importando...' : 'Importar Datos'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.syncButton, syncing && styles.actionButtonDisabled]}
+            onPress={handleSync}
+            disabled={syncing}
+          >
+            <Text style={styles.syncButtonText}>
+              {syncing ? 'Sincronizando...' : 'Sincronizar Ahora'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -86,60 +116,90 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     flexDirection: 'row',
+    backgroundColor: '#f5f5f5',
   },
   contentContainer: {
     flex: 1,
-    padding: 20,
+    padding: 40,
+    justifyContent: 'center',
   },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
+  cardsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 30,
+    marginBottom: 50,
+  },
+  card: {
+    width: 220,
+    height: 260,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  iconCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#E6EBF5',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 20,
   },
-  syncButton: {
-    backgroundColor: '#007BFF',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 15,
+  iconText: {
+    fontSize: 50,
   },
-  syncButtonDisabled: {
-    backgroundColor: '#999',
-    padding: 15,
-    borderRadius: 8,
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1F4788',
+    textAlign: 'center',
+    lineHeight: 28,
+  },
+  loader: {
+    marginTop: 15,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 20,
+  },
+  actionButton: {
+    backgroundColor: '#1F4788',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    minWidth: 180,
     alignItems: 'center',
-    marginBottom: 15,
+  },
+  actionButtonDisabled: {
+    backgroundColor: '#999',
+    opacity: 0.6,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  syncButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    minWidth: 180,
+    alignItems: 'center',
   },
   syncButtonText: {
     color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  infoText: {
-    fontSize: 14,
-    color: 'gray',
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    paddingBottom: 10,
-  },
-  logTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 10,
   },
-  logContainer: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 5,
-    padding: 10,
-    minHeight: 200,
-  },
-  logEntry: {
-    fontSize: 12,
-    color: '#333',
-    fontFamily: 'monospace',
-  }
 });
 
 export default SincronizacionScreen;
