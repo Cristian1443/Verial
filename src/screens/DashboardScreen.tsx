@@ -1,6 +1,6 @@
 // src/screens/DashboardScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 import SidebarMenu from '../components/common/SidebarMenu';
 
 const ventasRecientes = [
@@ -13,6 +13,10 @@ const ventasRecientes = [
 ];
 
 const DashboardScreen = ({ navigation }: { navigation: any }) => {
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1024;
+
   return (
     <View style={styles.mainContainer}>
       <SidebarMenu navigation={navigation} currentScreen="Dashboard" />
@@ -44,7 +48,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
         </View>
 
         {/* Métricas - 3 Cards */}
-        <View style={styles.metricsRow}>
+        <View style={[styles.metricsRow, isMobile && styles.metricsColumn]}>
           <View style={styles.metricCard}>
             <View style={styles.metricBadge}>
               <Text style={styles.metricBadgeText}>Ventas Hoy</Text>
@@ -80,7 +84,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
         </View>
 
         {/* Segunda fila */}
-        <View style={styles.secondRow}>
+        <View style={[styles.secondRow, isMobile && styles.secondRowMobile]}>
           <View style={styles.clientesCard}>
             <View style={styles.clientesBadge}>
               <Text style={styles.clientesBadgeText}>Clientes Visitados</Text>
@@ -224,6 +228,10 @@ const styles = StyleSheet.create({
     padding: 25,
     gap: 20,
   },
+  metricsColumn: {
+    flexDirection: 'column',
+    padding: 15,
+  },
   metricCard: {
     flex: 1,
     backgroundColor: 'white',
@@ -282,6 +290,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingBottom: 25,
     gap: 20,
+  },
+  secondRowMobile: {
+    flexDirection: 'column',
+    paddingHorizontal: 15,
   },
   clientesCard: {
     flex: 1,

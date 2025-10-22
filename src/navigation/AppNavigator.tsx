@@ -15,6 +15,8 @@ import SincronizacionScreen from '../screens/SincronizacionScreen';
 import AlmacenScreen from '../screens/AlmacenScreen';
 import DocumentacionScreen from '../screens/DocumentacionScreen';
 import ConfiguracionScreen from '../screens/ConfiguracionScreen';
+import ResumenNotaScreen from '../screens/ResumenNotaScreen';
+import ResumenDiaScreen from '../screens/ResumenDiaScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +37,8 @@ export const AppNavigator = () => {
           <Stack.Screen name="AlmacenScreen" component={AlmacenScreen} options={{ headerShown: false }} />
           <Stack.Screen name="DocumentacionScreen" component={DocumentacionScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ConfiguracionScreen" component={ConfiguracionScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="ResumenNotaScreen" component={ResumenNotaScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="ResumenDiaScreen" component={ResumenDiaScreen} options={{ headerShown: false }} />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />

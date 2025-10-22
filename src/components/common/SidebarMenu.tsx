@@ -1,18 +1,21 @@
 // src/components/common/SidebarMenu.tsx
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useWindowDimensions } from 'react-native';
 
 const SidebarMenu = ({ navigation, currentScreen }: { navigation: any; currentScreen: string }) => {
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+
   const menuItems = [
     { id: 'Dashboard', icon: '🏠', label: 'Panel', screen: 'Dashboard' },
     { id: 'VentasScreen', icon: '📋', label: 'Ventas', screen: 'VentasScreen' },
     { id: 'AlmacenScreen', icon: '📦', label: 'Almacén', screen: 'AlmacenScreen' },
     { id: 'SincronizacionScreen', icon: '🌐', label: 'Comunica', screen: 'SincronizacionScreen' },
-    { id: 'AgendaScreen', icon: '📅', label: 'Agenda', screen: 'Dashboard' },
+    { id: 'Dashboard', icon: '📅', label: 'Agenda', screen: 'Dashboard' },
   ];
 
   return (
-    <View style={styles.sidebar}>
+    <View style={[styles.sidebar, isMobile && styles.sidebarMobile]}>
       {/* Logo */}
       <View style={styles.logoContainer}>
         <View style={styles.logoBox}>
@@ -21,23 +24,26 @@ const SidebarMenu = ({ navigation, currentScreen }: { navigation: any; currentSc
       </View>
 
       {/* Menu Items */}
-      <ScrollView style={styles.menuItems}>
+      <ScrollView style={styles.menuItems} showsVerticalScrollIndicator={false}>
         {menuItems.map((item) => (
           <TouchableOpacity
-            key={item.id}
+            key={item.id + item.label}
             style={[
               styles.menuItem,
-              currentScreen === item.id && styles.menuItemActive
+              currentScreen === item.id && styles.menuItemActive,
+              isMobile && styles.menuItemMobile
             ]}
             onPress={() => navigation.navigate(item.screen)}
           >
-            <Text style={styles.menuIcon}>{item.icon}</Text>
-            <Text style={[
-              styles.menuLabel,
-              currentScreen === item.id && styles.menuLabelActive
-            ]}>
-              {item.label}
-            </Text>
+            <Text style={[styles.menuIcon, isMobile && styles.menuIconMobile]}>{item.icon}</Text>
+            {!isMobile && (
+              <Text style={[
+                styles.menuLabel,
+                currentScreen === item.id && styles.menuLabelActive
+              ]}>
+                {item.label}
+              </Text>
+            )}
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -56,6 +62,14 @@ const styles = StyleSheet.create({
   sidebar: {
     width: 100,
     backgroundColor: '#1F4788',
+    shadowColor: '#000',
+    shadowOffset: { width: 2, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  sidebarMobile: {
+    width: 70,
   },
   logoContainer: {
     paddingVertical: 20,
@@ -87,6 +101,10 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: 'transparent',
   },
+  menuItemMobile: {
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+  },
   menuItemActive: {
     backgroundColor: 'rgba(255,255,255,0.1)',
     borderLeftColor: 'white',
@@ -94,6 +112,10 @@ const styles = StyleSheet.create({
   menuIcon: {
     fontSize: 24,
     marginBottom: 8,
+  },
+  menuIconMobile: {
+    fontSize: 22,
+    marginBottom: 0,
   },
   menuLabel: {
     fontSize: 11,
