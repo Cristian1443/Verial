@@ -19,10 +19,10 @@ import ConfiguracionScreen from '../screens/ConfiguracionScreen';
 const Stack = createNativeStackNavigator();
 
 export const AppNavigator = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // Para web, siempre autenticado
+  const [isAuthenticated] = useState(true); // Para web, siempre autenticado (salta login)
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="Dashboard">
       {isAuthenticated ? (
         <>
           <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false }} /> 
